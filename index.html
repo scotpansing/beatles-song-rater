@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beatles Song Rater</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #000;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* Screen Management */
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            background-color: #000;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100vh;
+        }
+
+        .content-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .scrollable {
+            overflow-y: auto;
+            justify-content: flex-start;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+
+        /* Typography */
+        .beatles-title {
+            font-size: 48px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+
+        .description {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            max-width: 500px;
+            color: #ccc;
+        }
+
+        .song-title {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin: 40px 20px;
+            line-height: 1.2;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background-color: #fff;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: transform 0.1s;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.95);
+        }
+
+        .btn-secondary {
+            background-color: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: transform 0.1s;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .btn-text {
+            background: none;
+            color: #888;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .btn-text.small {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Rating Section */
+        .rating-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .rating-prompt {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .rating-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .rating-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .rating-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .rating-btn:active {
+            transform: scale(0.9);
+        }
+
+        .rating-1 {
+            background-color: #fff;
+            color: #000;
+        }
+
+        .rating-2 {
+            background-color: rgba(255, 255, 255, 0.75);
+            color: #fff;
+        }
+
+        .rating-3 {
+            background-color: rgba(255, 255, 255, 0.5);
+            color: #fff;
+        }
+
+        .rating-4 {
+            background-color: rgba(255, 255, 255, 0.25);
+            color: #fff;
+        }
+
+        .rating-5 {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* Progress Bar */
+        .progress-section {
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 2px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 1px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #fff;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* Streaming Links */
+        .streaming-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .streaming-prompt {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .streaming-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .streaming-btn {
+            background-color: #000;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 15px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.1s;
+        }
+
+        .streaming-btn:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .streaming-btn span {
+            font-size: 20px;
+        }
+
+        /* Song Info Screen */
+        .info-label {
+            font-size: 18px;
+            color: #888;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .info-album {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .info-year {
+            font-size: 16px;
+            color: #888;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .album-art {
+            width: 200px;
+            height: 200px;
+            border-radius: 3px;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Results Screen */
+        .results-title {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0 40px 0;
+        }
+
+        .results-summary {
+            font-size: 18px;
+            text-align: center;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .results-box {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .results-box h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .rating-stat {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+
+        .rating-stat span:first-child {
+            color: #fff;
+        }
+
+        .rating-stat span:last-child {
+            color: #888;
+        }
+
+        .results-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        /* Help Screen */
+        .help-title {
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .help-section {
+            margin: 30px 0;
+        }
+
+        .help-section h3 {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .help-section p {
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.8;
+            margin: 8px 0;
+        }
+
+        /* Loading state */
+        .loading-message {
+            font-size: 18px;
+            color: #888;
+            text-align: center;
+            padding: 40px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .song-title {
+                font-size: 28px;
+                margin: 30px 10px;
+                min-height: 80px;
+            }
+            
+            .rating-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            .rating-buttons {
+                gap: 10px;
+            }
+            
+            .beatles-title {
+                font-size: 36px;
+            }
+            
+            .subtitle {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Start Screen -->
+    <div id="start-screen" class="screen active">
+        <div class="content-center">
+            <h1 class="beatles-title">THE BEATLES</h1>
+            <h2 class="subtitle">YOU CAN WORK IT OUT</h2>
+            
+            <p class="description">
+                Rate over 200 songs across the Beatles universe for fun facts, 
+                personalized playlists, and more!
+            </p>
+            
+            <button class="btn-primary" onclick="startRating()">START</button>
+            <button class="btn-secondary" onclick="showHelp()">Help!</button>
+        </div>
+    </div>
+
+    <!-- Rating Screen -->
+    <div id="rating-screen" class="screen">
+        <div class="content">
+            <h1 id="song-title" class="song-title"></h1>
+
+            <div style="text-align: center; margin: 10px 0 20px 0;">
+                <img id="rating-album-art" src="" alt="Album artwork" class="album-art">
+            </div>
+
+            <div class="rating-section">
+                <p class="rating-prompt">Rate this song:</p>
+                <div class="rating-buttons">
+                    <button class="rating-btn rating-1" onclick="rateSong(1)">1</button>
+                    <button class="rating-btn rating-2" onclick="rateSong(2)">2</button>
+                    <button class="rating-btn rating-3" onclick="rateSong(3)">3</button>
+                    <button class="rating-btn rating-4" onclick="rateSong(4)">4</button>
+                    <button class="rating-btn rating-5" onclick="rateSong(5)">5</button>
+                </div>
+            </div>
+            
+            <div class="progress-section">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <p id="progress-text" class="progress-text">0 of 0 songs rated</p>
+            </div>
+            
+            <div id="streaming-links" class="streaming-section">
+                <p class="streaming-prompt">Listen to this song:</p>
+                <div class="streaming-buttons">
+                    <a id="spotify-link" href="#" target="_blank" class="streaming-btn" style="display: none;">
+                        <span>🎵</span> Spotify
+                    </a>
+                    <a id="apple-link" href="#" target="_blank" class="streaming-btn" style="display: none;">
+                        <span>🎵</span> Apple Music
+                    </a>
+                </div>
+            </div>
+            
+            <button class="btn-text" onclick="showSongInfo()">
+                Feeling like a Fool on the Hill? Tap for more song info
+            </button>
+            
+            <button id="results-btn" class="btn-secondary" onclick="showResults()" style="display: none;">
+                Check your results so far
+            </button>
+            
+            <button class="btn-text small" onclick="showHelp()">Help!</button>
+        </div>
+    </div>
+
+    <!-- Song Info Screen -->
+    <div id="info-screen" class="screen">
+        <div class="content scrollable">
+            <h2 id="info-song-title" class="song-title"></h2>
+            
+            <!-- Album artwork -->
+            <div style="text-align: center; margin: 20px 0;">
+                <img id="info-album-art" src="" alt="Album artwork" class="album-art">
+            </div>
+            
+            <p class="info-label">Released on:</p>
+            <p id="info-album" class="info-album"></p>
+            <p id="info-year" class="info-year"></p>
+            
+            <div id="info-streaming" class="streaming-section">
+                <p class="streaming-prompt">Listen to this song:</p>
+                <div class="streaming-buttons">
+                    <a id="info-spotify-link" href="#" target="_blank" class="streaming-btn" style="display: none;">
+                        <span>🎵</span> Spotify
+                    </a>
+                    <a id="info-apple-link" href="#" target="_blank" class="streaming-btn" style="display: none;">
+                        <span>🎵</span> Apple Music
+                    </a>
+                </div>
+            </div>
+            
+            <button class="btn-primary" onclick="backToRating()">Get Back to Rating</button>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" class="screen">
+        <div class="content scrollable">
+            <h1 class="results-title">YOUR RESULTS</h1>
+            
+            <div id="results-content">
+                <!-- Results will be populated here -->
+            </div>
+            
+            <div class="results-buttons">
+                <button class="btn-primary" onclick="backToRating()">Get Back to Rating</button>
+                <button class="btn-secondary" onclick="startOver()">START OVER</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Screen -->
+    <div id="help-screen" class="screen">
+        <div class="content scrollable">
+            <h2 class="help-title">Good Day Sunshine</h2>
+            
+            <div class="help-section">
+                <h3>What You're Doing: Rating Songs</h3>
+                <p>• Rate each Beatles song from 1-5, 1 being the Top Tier of favorites.</p>
+                <p>• There are 213 songs; try to rate them all!</p>
+                <p>• If you are unfamiliar with a song, links are provided for Spotify and Apple Music.</p>
+                <p>• Each rating category holds about 40 songs.</p>
+            </div>
+            
+            <div class="help-section">
+                <h3>You Like Me Too Much: Adjusting for Overflow</h3>
+                <p>• If you rate more than 42 songs in a given category, the earliest rated songs will be "bumped down."</p>
+                <p>• If you rate more than 42 songs as a 5, the earliest rated songs will be "bumped up."</p>
+            </div>
+            
+            <div class="help-section">
+                <h3>The Long and Winding Road Comes Together: The Results</h3>
+                <p>• After rating at least 20 songs, check your results to have even more fun!</p>
+                <p>• Get stats about your Beatles tastes and preferences, curated playlists, and more!</p>
+            </div>
+            
+            <div class="help-section">
+                <h3>Do You Want to Know a Secret?</h3>
+                <p>This app was made by Beatles fan Scot Pansing, inspired by plenty of conversations with his son that began as, "Would you rate this a Tier 1 Beatles song?"</p>
+            </div>
+            
+            <button class="btn-primary" onclick="closeHelp()">Dig It</button>
+        </div>
+    </div>
+
+    <script>
+const SONGS_DATA = [{"Song":"\"Across the Universe\"","Core catalogue release(s)":"Let It Be\nPast Masters","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1969,"Spotify":"https://open.spotify.com/track/4dkoqJrP0L8FXftrMZongF?si=c22e7666ab164623","Apple Music":"https://music.apple.com/us/album/across-the-universe/1441164495?i=1441164675"},{"Song":"\"Act Naturally\"","Core catalogue release(s)":"Help!","Songwriter(s)":"Johnny Russell\nVoni Morrison","Lead vocal(s)":"Starr","Year":1965,"Spotify":"https://open.spotify.com/track/0IxxqsYBcCHEQ1HqLYJnwx?si=05741f7a26974e8b","Apple Music":"https://music.apple.com/us/album/act-naturally/1441164524?i=1441164761"},{"Song":"\"All I've Got to Do\"","Core catalogue release(s)":"With the Beatles","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/5tztLBvTlNC15Np2tnQ5Ll?si=6428e4b72cfe44e7","Apple Music":"https://music.apple.com/us/album/all-ive-got-to-do/1441164362?i=1441164618"},{"Song":"\"All My Loving\"","Core catalogue release(s)":"With the Beatles","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1963,"Spotify":"https://open.spotify.com/track/4joiWvli4qJVEW6qZV2i2J?si=5f7492d56cfd4760","Apple Music":"https://music.apple.com/us/album/all-my-loving/1441164362?i=1441164625"},{"Song":"\"All Together Now\"","Core catalogue release(s)":"Yellow Submarine","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1969,"Spotify":"https://open.spotify.com/track/4KELrBm2uoyn9tq6fZ5P98?si=24cbd2bd577f44c2","Apple Music":"https://music.apple.com/us/album/all-together-now/1441164525?i=1441164528"},{"Song":"\"All You Need Is Love\"","Core catalogue release(s)":"Magical Mystery Tour\nYellow Submarine","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1967,"Spotify":"https://open.spotify.com/track/68BTFws92cRztMS1oQ7Ewj?si=f102d62bab57472b","Apple Music":"https://music.apple.com/us/album/all-you-need-is-love/1441163490?i=1441163780"},{"Song":"\"And I Love Her\"","Core catalogue release(s)":"A Hard Day's Night","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1964,"Spotify":"https://open.spotify.com/track/65vdMBskhx3akkG9vQlSH1?si=ea067172eea84795","Apple Music":"https://music.apple.com/us/album/and-i-love-her/1441164416?i=1441164421"},{"Song":"\"And Your Bird Can Sing\"","Core catalogue release(s)":"Revolver","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1966,"Spotify":"https://open.spotify.com/track/4KRgqwb4kvBuTz1utbYxfb?si=6799a88d76e04818","Apple Music":"https://music.apple.com/us/album/and-your-bird-can-sing/1441164670?i=1441165137"},{"Song":"\"Anna (Go to Him)\"","Core catalogue release(s)":"Please Please Me","Songwriter(s)":"Arthur Alexander","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/2baEFuU0gQon0hgVRioI1o?si=6ba3cdfa380246d6","Apple Music":"https://music.apple.com/us/album/anna-go-to-him/1441164816?i=1441165121"},{"Song":"\"Another Girl\"","Core catalogue release(s)":"Help!","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1965,"Spotify":"https://open.spotify.com/track/7hefVXaGsFPesbK6fKwS6F?si=43b14ddab9e14ada","Apple Music":"https://music.apple.com/us/album/another-girl/1441164524?i=1441164666"},{"Song":"\"Any Time at All\"","Core catalogue release(s)":"A Hard Day's Night","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/70XHAdaMaoLIOVb1hSaeJ4?si=a26ec05f687a4ee5","Apple Music":"https://music.apple.com/us/album/any-time-at-all/1441164416?i=1441164424"},{"Song":"\"Ask Me Why\"","Core catalogue release(s)":"Please Please Me","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/7529Z6b1rlGZFFPWjHPeV5?si=f1453869f2984214","Apple Music":"https://music.apple.com/us/album/ask-me-why/1441164816?i=1441165125"},{"Song":"\"Baby It's You\"","Core catalogue release(s)":"Please Please Me","Songwriter(s)":"Burt Bacharach\nMack David\nLuther Dixon","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/2VmB1rF9FtfKUmFHDVnq8Q?si=cf03caaf9ea64d09","Apple Music":"https://music.apple.com/us/album/baby-its-you/1441164816?i=14411651311"},{"Song":"\"Baby, You're a Rich Man\"","Core catalogue release(s)":"Magical Mystery Tour\n(B-side of \"All You Need Is Love\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1967,"Spotify":"https://open.spotify.com/track/0JBvtprXP2Z0LP3jmzA7Xp?si=99bfbbcb098043ac","Apple Music":"https://music.apple.com/us/album/baby-youre-a-rich-man/1441163490?i=1441163778"},{"Song":"\"Baby's in Black\"","Core catalogue release(s)":"Beatles for Sale","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/7cb2SdLm1UMLwdUoWwrZN1?si=d80567d2b2f64797","Apple Music":"https://music.apple.com/us/album/babys-in-black/1441165005?i=1441165093"},{"Song":"\"Back in the U.S.S.R.\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1968,"Spotify":"https://open.spotify.com/track/0j3p1p06deJ7f9xmJ9yG22?si=66c36c9e7f104a61","Apple Music":"https://music.apple.com/us/album/back-in-the-u-s-s-r/1441133180?i=1441133197"},{"Song":"\"Bad Boy\"","Core catalogue release(s)":"Past Masters","Songwriter(s)":"Larry Williams","Lead vocal(s)":"Lennon","Year":1965,"Spotify":"https://open.spotify.com/track/7iTjGs5z7opNGCXyurs0Q7?si=cb317d0d3fec495a","Apple Music":"https://music.apple.com/us/album/bad-boy/1441133181?i=1441133908"},{"Song":"\"The Ballad of John and Yoko\"","Core catalogue release(s)":"Past Masters","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1969,"Spotify":"https://open.spotify.com/track/6r7JAngkBzKGDKRUzLgY2U?si=5a50f0f758fc4d2d","Apple Music":"https://music.apple.com/us/album/the-ballad-of-john-and-yoko/1441133181?i=1441134480"},{"Song":"\"Because\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1969,"Spotify":"https://open.spotify.com/track/1rxoyGj1QuPoVi8fOft1Kt?si=403f9605b8de4927","Apple Music":"https://music.apple.com/us/album/because/1441164426?i=1441164590"},{"Song":"\"Being for the Benefit of Mr. Kite!\"","Core catalogue release(s)":"Sgt. Pepper's Lonely Hearts Club Band","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1967,"Spotify":"https://open.spotify.com/track/6W35n1UlkvqhfMZstB4BXs?si=71723c7efd414c01","Apple Music":"https://music.apple.com/us/album/being-for-the-benefit-of-mr-kite/1441164604?i=1441164864"},{"Song":"\"Birthday\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1968,"Spotify":"https://open.spotify.com/track/1ABegtCPBMMJaMpfDyATjE?si=76f563962b884bae","Apple Music":"https://music.apple.com/us/album/birthday/1441133180?i=1441134086"},{"Song":"\"Blackbird\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1968,"Spotify":"https://open.spotify.com/track/5jgFfDIR6FR0gvlA56Nakr?si=e15adfaf065c40da","Apple Music":"https://music.apple.com/us/album/blackbird/1441133180?i=1441133834"},{"Song":"\"Blue Jay Way\"","Core catalogue release(s)":"Magical Mystery Tour","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1967,"Spotify":"https://open.spotify.com/track/0QIX9BS0AUCQcHYvyrsMkV?si=653b3302fecc4bd4","Apple Music":"https://music.apple.com/us/album/blue-jay-way/1441163490?i=1441163743"},{"Song":"\"Boys\"","Core catalogue release(s)":"Please Please Me","Songwriter(s)":"Luther Dixon\nWes Farrell","Lead vocal(s)":"Starr","Year":1963,"Spotify":"https://open.spotify.com/track/7JxGM1R32ZqfwZou3VtnTg?si=fe1190be3ae54b1c","Apple Music":"https://music.apple.com/us/album/boys/1441164816?i=1441165124"},{"Song":"\"Can't Buy Me Love\"","Core catalogue release(s)":"A Hard Day's Night","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1964,"Spotify":"https://open.spotify.com/track/3SdingSsFcZDZAyvcJbgAw?si=c976932578ca4ac7","Apple Music":"https://music.apple.com/us/album/cant-buy-me-love/1441164416?i=1441164423"},{"Song":"\"Carry That Weight\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1969,"Spotify":"https://open.spotify.com/track/5eZrW59C3UgBhkqNlowEID?si=b0c61a1d8bab46ec","Apple Music":"https://music.apple.com/us/album/carry-that-weight/1441164426?i=1441164601"},{"Song":"\"Chains\"","Core catalogue release(s)":"Please Please Me","Songwriter(s)":"Gerry Goffin\nCarole King","Lead vocal(s)":"Harrison","Year":1963,"Spotify":"https://open.spotify.com/track/3JQWLa88R35d971o5bIImd?si=786598b08ab840ee","Apple Music":"https://music.apple.com/us/album/chains/1441164816?i=1441165122"},{"Song":"\"Come Together\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1969,"Spotify":"https://open.spotify.com/track/2EqlS6tkEnglzr7tkKAAYD?si=9f52c4bf481a425e","Apple Music":"https://music.apple.com/us/album/come-together/1441164426?i=1441164430"},{"Song":"\"The Continuing Story of Bungalow Bill\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1968,"Spotify":"https://open.spotify.com/track/5Z3Rd1fMcaty8g5Pn7yhBQ?si=a249184188254f09","Apple Music":"https://music.apple.com/us/album/the-continuing-story-of-bungalow-bill/1441133180?i=1441133634"},{"Song":"\"Cry Baby Cry\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1968,"Spotify":"https://open.spotify.com/track/5XmetMMUFNXClbiYnGdVmP?si=76ada6b75ac44c4a","Apple Music":"https://music.apple.com/us/album/cry-baby-cry/1441133180?i=1441134477"},{"Song":"\"A Day in the Life\"","Core catalogue release(s)":"Sgt. Pepper's Lonely Hearts Club Band","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1967,"Spotify":"https://open.spotify.com/track/0hKRSZhUGEhKU6aNSPBACZ?si=da3c867d7af24ebc","Apple Music":"https://music.apple.com/us/album/a-day-in-the-life/1441164604?i=1441165168"},{"Song":"\"Day Tripper\"","Core catalogue release(s)":"Past Masters\n(Double A-side with \"We Can Work It Out\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1965,"Spotify":"https://open.spotify.com/track/7qbRP2jO0Sq3kTYdEW1v00?si=af143dd3aeda45a0","Apple Music":"https://music.apple.com/us/album/day-tripper/1441133181?i=1441134091"},{"Song":"\"Dear Prudence\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1968,"Spotify":"https://open.spotify.com/track/5NQYyej46WQkgCbnzGD21W?si=08298ca9f02e4905","Apple Music":"https://music.apple.com/us/album/dear-prudence/1441133180?i=1441133428"},{"Song":"\"Devil in Her Heart\"","Core catalogue release(s)":"With the Beatles","Songwriter(s)":"Richard Drapkin","Lead vocal(s)":"Harrison","Year":1963,"Spotify":"https://open.spotify.com/track/5maTh4fY9SlgR3FhRkf040?si=fb711460238b462f","Apple Music":"https://music.apple.com/us/album/devil-in-her-heart/1441164362?i=1441164847"},{"Song":"\"Dig a Pony\"","Core catalogue release(s)":"Let It Be","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1970,"Spotify":"https://open.spotify.com/track/4OUmlC67FoPLvQNuE5C7kF?si=5c85855fc2eb4e9d","Apple Music":"https://music.apple.com/us/album/dig-a-pony/1441164495?i=1441164506"},{"Song":"\"Dig It\"","Core catalogue release(s)":"Let It Be","Songwriter(s)":"Lennon\nMcCartney\nHarrison\nStarkey","Lead vocal(s)":"Lennon","Year":1970,"Spotify":"https://open.spotify.com/track/0eRyOunOVBChlXxIvqwOxH?si=e95445a3285247e1","Apple Music":"https://music.apple.com/us/album/dig-it/1441164495?i=1441164692"},{"Song":"\"Dizzy Miss Lizzy\"","Core catalogue release(s)":"Help!","Songwriter(s)":"Larry Williams","Lead vocal(s)":"Lennon","Year":1965,"Spotify":"https://open.spotify.com/track/70Dohn82wv6VtxGesqRzbZ?si=6bed5190c7af42f2","Apple Music":"https://music.apple.com/us/album/dizzy-miss-lizzy/1441164524?i=1441164807"},{"Song":"\"Do You Want to Know a Secret\"","Core catalogue release(s)":"Please Please Me","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Harrison","Year":1963,"Spotify":"https://open.spotify.com/track/7Aobt67JnaF7qN8jCCKvHq?si=8371635f6a6947ba","Apple Music":"https://music.apple.com/us/album/do-you-want-to-know-a-secret/1441164816?i=1441165132"},{"Song":"\"Doctor Robert\"","Core catalogue release(s)":"Revolver","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1966,"Spotify":"https://open.spotify.com/track/1ob06Ol8FMIPQgjpg7bMyk?si=37830e2bd04e4bdd","Apple Music":"https://music.apple.com/us/album/doctor-robert/1441164670?i=1441165143"},{"Song":"\"Don't Bother Me\"","Core catalogue release(s)":"With the Beatles","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1963,"Spotify":"https://open.spotify.com/track/7y1hMqXNa0dKQLZH7CKbUG?si=fad1518e7e3d4192","Apple Music":"https://music.apple.com/us/album/dont-bother-me/1441164362?i=1441164627"},{"Song":"\"Don't Let Me Down\"","Core catalogue release(s)":"Past Masters\n(B-side of \"Get Back\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1969,"Spotify":"https://open.spotify.com/track/0FP04YnQ8eDxkAH4rlwFar?si=945ba03a2e3f4038","Apple Music":"https://music.apple.com/us/album/dont-let-me-down/1441133181?i=1441134474"},{"Song":"\"Don't Pass Me By\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Starkey","Lead vocal(s)":"Starr","Year":1968,"Spotify":"https://open.spotify.com/track/4zq4rrfHZeZsTbo5vjJXSV?si=c09a90e2ef98447e","Apple Music":"https://music.apple.com/us/album/dont-pass-me-by/1441133180?i=1441133893"},{"Song":"\"Drive My Car\"","Core catalogue release(s)":"Rubber Soul","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1965,"Spotify":"https://open.spotify.com/track/06ypiqmILMdVeaiErMFA91?si=b01a5cd416784eeb","Apple Music":"https://music.apple.com/us/album/drive-my-car/1441164359?i=1441164364"},{"Song":"\"Eight Days a Week\"","Core catalogue release(s)":"Beatles for Sale","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/1Dg4dFJr3HW7sbA7vPejre?si=4f829256111f440e","Apple Music":"https://music.apple.com/us/album/eight-days-a-week/1441165005?i=1441165099"},{"Song":"\"Eleanor Rigby\"","Core catalogue release(s)":"Revolver","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1966,"Spotify":"https://open.spotify.com/track/5GjPQ0eI7AgmOnADn1EO6Q?si=86cd4cedfe1b4494","Apple Music":"https://music.apple.com/us/album/eleanor-rigby/1441164670?i=1441164806"},{"Song":"\"The End\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1969,"Spotify":"https://open.spotify.com/track/5aHHf6jrqDRb1fcBmue2kn?si=5f8b96db538c45f5","Apple Music":"https://music.apple.com/us/album/the-end/1441164426?i=1441164602"},{"Song":"\"Every Little Thing\"","Core catalogue release(s)":"Beatles for Sale","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/2CxTkdvhDuQrOxl8xXkdJS?si=6879741bcf6d4523","Apple Music":"https://music.apple.com/us/album/every-little-thing/1441165005?i=1441165103"},{"Song":"\"Everybody's Got Something to Hide Except Me and My Monkey\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1968,"Spotify":"https://open.spotify.com/track/64P3zpRsDHIk7YTpRtaKYL?si=984473d98af7483d","Apple Music":"https://music.apple.com/us/album/everybodys-got-something-to-hide-except-me-and-my-monkey/1441133180?i=1441134192"},{"Song":"\"Everybody's Trying to Be My Baby\"","Core catalogue release(s)":"Beatles for Sale","Songwriter(s)":"Carl Perkins","Lead vocal(s)":"Harrison","Year":1964,"Spotify":"https://open.spotify.com/track/4DZAH8eiqSAkMIE9l5D71U?si=1c30911d18054f74","Apple Music":"https://music.apple.com/us/album/everybodys-trying-to-be-my-baby/1441165005?i=1441165107"},{"Song":"\"Fixing a Hole\"","Core catalogue release(s)":"Sgt. Pepper's Lonely Hearts Club Band","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1967,"Spotify":"https://open.spotify.com/track/3pKKxkeB1pOUMHwWBmKc3Y?si=ae7a8129e01343d6","Apple Music":"https://music.apple.com/us/album/fixing-a-hole/1441164604?i=1441164856"},{"Song":"\"Flying\"","Core catalogue release(s)":"Magical Mystery Tour","Songwriter(s)":"Lennon\nMcCartney\nHarrison\nStarkey","Lead vocal(s)":"Instrumental","Year":1967,"Spotify":"https://open.spotify.com/track/1itLKsCWHtLnxALkgBk1Fa?si=881bdd3f7190437a","Apple Music":"https://music.apple.com/us/album/flying/1441163490?i=1441163499"},{"Song":"\"The Fool on the Hill\"","Core catalogue release(s)":"Magical Mystery Tour","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1967,"Spotify":"https://open.spotify.com/track/6rHh8urosEFRI67xVa6fzU?si=84c23b9c6b8549b3","Apple Music":"https://music.apple.com/us/album/the-fool-on-the-hill/1441163490?i=1441163498"},{"Song":"\"For No One\"","Core catalogue release(s)":"Revolver","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1966,"Spotify":"https://open.spotify.com/track/1kDkaFlmkdEZiVUogaP9OZ?si=5ecb710a167d4f84","Apple Music":"https://music.apple.com/us/album/for-no-one/1441164670?i=1441165139"},{"Song":"\"For You Blue\"","Core catalogue release(s)":"Let It Be","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1970,"Spotify":"https://open.spotify.com/track/5dpRJkvY8oWMQmQbEQTXhO?si=d21e766acf0b4a07","Apple Music":"https://music.apple.com/us/album/for-you-blue/1441164495?i=1441164949"},{"Song":"\"From Me to You\"","Core catalogue release(s)":"Past Masters","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/7nBGBbzfnPiowCvXKJnV9J?si=f6ec43e97b9246b4","Apple Music":"https://music.apple.com/us/album/from-me-to-you/1441133181?i=1441133426"},{"Song":"\"Get Back\"","Core catalogue release(s)":"Let It Be\nPast Masters","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1969,"Spotify":"https://open.spotify.com/track/4MLBqAEzNN89o2M9h92Z26?si=2074bfeabe8640b1","Apple Music":"https://music.apple.com/us/album/get-back/1441164495?i=1441164953"},{"Song":"\"Getting Better\"","Core catalogue release(s)":"Sgt. Pepper's Lonely Hearts Club Band","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1967,"Spotify":"https://open.spotify.com/track/3LtOmWpTXLhilL5odoKysR?si=68eaa668bb99484b","Apple Music":"https://music.apple.com/us/album/getting-better/1441164604?i=1441164853"},{"Song":"\"Girl\"","Core catalogue release(s)":"Rubber Soul","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1965,"Spotify":"https://open.spotify.com/track/6tQvjqDIK9GXWIC6mejms8?si=d57537ea552e49e5","Apple Music":"https://music.apple.com/us/album/girl/1441164359?i=1441164634"},{"Song":"\"Glass Onion\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1968,"Spotify":"https://open.spotify.com/track/2jAojvUaPoHPFSPpF0UNRo?si=784edff2506e4b8a","Apple Music":"https://music.apple.com/us/album/glass-onion/1441133180?i=1441133436"},{"Song":"\"Golden Slumbers\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1969,"Spotify":"https://open.spotify.com/track/01SfTM5nfCou5gQL70r6gs?si=7830197c81ef439b","Apple Music":"https://music.apple.com/us/album/golden-slumbers/1441164426?i=1441164600"},{"Song":"\"Good Day Sunshine\"","Core catalogue release(s)":"Revolver","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1966,"Spotify":"https://open.spotify.com/track/7HTH1ppjkkOe7RLoBDKXYJ?si=2dedddc7bab84c46","Apple Music":"https://music.apple.com/us/album/good-day-sunshine/1441164670?i=1441165133"},{"Song":"\"Good Morning Good Morning\"","Core catalogue release(s)":"Sgt. Pepper's Lonely Hearts Club Band","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1967,"Spotify":"https://open.spotify.com/track/0xIuNHHcKI1JDuBPlSwzb1?si=e1b278139fc04c41","Apple Music":"https://music.apple.com/us/album/good-morning-good-morning/1441164604?i=1441165162"},{"Song":"\"Good Night\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Starr","Year":1968,"Spotify":"https://open.spotify.com/track/3T4Kt51PV4k8tx6YCtBgcl?si=f9a6ef5e63e74999","Apple Music":"https://music.apple.com/us/album/good-night/1441133180?i=1441134487"},{"Song":"\"Got to Get You into My Life\"","Core catalogue release(s)":"Revolver","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1966,"Spotify":"https://open.spotify.com/track/3tGhRLgcCP6SIZU3tbGl7l?si=21e88141ce97410c","Apple Music":"https://music.apple.com/us/album/got-to-get-you-into-my-life/1441164670?i=1441165146"},{"Song":"\"Happiness Is a Warm Gun\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1968,"Spotify":"https://open.spotify.com/track/71LsKf3xISiOlY1mj7FFPP?si=1605cbd2f5b244fe","Apple Music":"https://music.apple.com/us/album/happiness-is-a-warm-gun/1441133180?i=1441133681"},{"Song":"\"A Hard Day's Night\"","Core catalogue release(s)":"A Hard Day's Night","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/5J2CHimS7dWYMImCHkEFaJ?si=d0b4ea70d61b4da7","Apple Music":"https://music.apple.com/us/album/a-hard-days-night/1441164416?i=1441164417"},{"Song":"\"Hello, Goodbye\"","Core catalogue release(s)":"Magical Mystery Tour","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1967,"Spotify":"https://open.spotify.com/track/0vZ97gHhemKm6c64hTfJNA?si=1a92422f384f4a9b","Apple Music":"https://music.apple.com/us/album/hello-goodbye/1441163490?i=1441163755"},{"Song":"\"Help!\"","Core catalogue release(s)":"Help!","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1965,"Spotify":"https://open.spotify.com/track/7DD7eSuYSC5xk2ArU62esN?si=42865403f8e445d2","Apple Music":"https://music.apple.com/us/album/help/1441164524?i=1441164536"},{"Song":"\"Helter Skelter\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1968,"Spotify":"https://open.spotify.com/track/0Bs0hUYxz7REyIHH7tRhL2?si=75dd267e1974408f","Apple Music":"https://music.apple.com/us/album/helter-skelter/1441133180?i=1441134207"},{"Song":"\"Her Majesty\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1969,"Spotify":"https://open.spotify.com/track/6UCFZ9ZOFRxK8oak7MdPZu?si=0d533eef5e3d4d7f","Apple Music":"https://music.apple.com/us/album/her-majesty/1441164426?i=1441164603"},{"Song":"\"Here Comes the Sun\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1969,"Spotify":"https://open.spotify.com/track/6dGnYIeXmHdcikdzNNDMm2?si=4e29498d34034fc6","Apple Music":"https://music.apple.com/us/album/here-comes-the-sun/1441164426?i=1441164589"},{"Song":"\"Here, There and Everywhere\"","Core catalogue release(s)":"Revolver","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1966,"Spotify":"https://open.spotify.com/track/2B4Y9u4ERAFiMo13XPJyGP?si=21587f4a4dcc4e59","Apple Music":"https://music.apple.com/us/album/here-there-and-everywhere/1441164670?i=1441164817"},{"Song":"\"Hey Bulldog\"","Core catalogue release(s)":"Yellow Submarine","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1969,"Spotify":"https://open.spotify.com/track/5xYC2ZJJ9TMJL8BOl85O2R?si=225a32635c88429a","Apple Music":"https://music.apple.com/us/album/hey-bulldog/1441164525?i=1441164529"},{"Song":"\"Hey Jude\"","Core catalogue release(s)":"Past Masters","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1968,"Spotify":"https://open.spotify.com/track/2iGtdYI4lI0jDpnxJOqZRw?si=3fe33e1304fe4767","Apple Music":"https://music.apple.com/us/album/hey-jude/1441133181?i=1441134371"},{"Song":"\"Hold Me Tight\"","Core catalogue release(s)":"With the Beatles","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1963,"Spotify":"https://open.spotify.com/track/2RvKsA6Ho7VbJkVFiD4UQF?si=d68a30b963fa4415","Apple Music":"https://music.apple.com/us/album/hold-me-tight/1441164362?i=1441164830"},{"Song":"\"Honey Don't\"","Core catalogue release(s)":"Beatles for Sale","Songwriter(s)":"Carl Perkins","Lead vocal(s)":"Starr","Year":1964,"Spotify":"https://open.spotify.com/track/2d7GP7Fz1NrfPpo7MzWZgb?si=9173bfaef2a8406c","Apple Music":"https://music.apple.com/us/album/honey-dont/1441165005?i=1441165102"},{"Song":"\"Honey Pie\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1968,"Spotify":"https://open.spotify.com/track/1TPcNcmuKlq0PKpYOBgP1U?si=66f6349299184882","Apple Music":"https://music.apple.com/us/album/honey-pie/1441133180?i=1441134393"},{"Song":"\"I Am the Walrus\"","Core catalogue release(s)":"Magical Mystery Tour","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1967,"Spotify":"https://open.spotify.com/track/6Pq9MmkDQYZiiCDpxnvrf6?si=9a78792e900c4043","Apple Music":"https://music.apple.com/us/album/i-am-the-walrus/1441163490?i=1441163753"},{"Song":"\"I Call Your Name\"","Core catalogue release(s)":"Past Masters","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/1QQSTB03vIsgjU67UnUPEL?si=cabc3c6b089a48ae","Apple Music":"https://music.apple.com/us/album/i-call-your-name/1441133181?i=1441133710"},{"Song":"\"I Don't Want to Spoil the Party\"","Core catalogue release(s)":"Beatles for Sale","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/3kQDIa85ZK8cKVn72NfBnl?si=c396520a6b454c60","Apple Music":"https://music.apple.com/us/album/i-dont-want-to-spoil-the-party/1441165005?i=1441165104"},{"Song":"\"I Feel Fine\"","Core catalogue release(s)":"Past Masters","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/1Q7gCIpOjIIU0bUKcGzrG4?si=ad8877d475d34d39","Apple Music":"https://music.apple.com/us/album/i-feel-fine/1441133181?i=1441133892"},{"Song":"\"I Me Mine\"","Core catalogue release(s)":"Let It Be","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1970,"Spotify":"https://open.spotify.com/track/2BMqay80iBzZTa608Y1eG1?si=4962c8c5c36d4975","Apple Music":"https://music.apple.com/us/album/i-me-mine/1441164495?i=1441164676"},{"Song":"\"I Need You\"","Core catalogue release(s)":"Help!","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1965,"Spotify":"https://open.spotify.com/track/5EzvwjFwdP5Kfl5AZAemzu?si=1e55048644af427b","Apple Music":"https://music.apple.com/us/album/i-need-you/1441164524?i=1441164547"},{"Song":"\"I Saw Her Standing There\"","Core catalogue release(s)":"Please Please Me","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1963,"Spotify":"https://open.spotify.com/track/3KiexfmhxHvG5IgAElmTkd?si=fd3a9b31461a4513","Apple Music":"https://music.apple.com/us/album/i-saw-her-standing-there/1441164816?i=1441164819"},{"Song":"\"I Should Have Known Better\"","Core catalogue release(s)":"A Hard Day's Night","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/3pU1CUgPiFfxPCpscwIwQR?si=91fb1abb53314237","Apple Music":"https://music.apple.com/us/album/i-should-have-known-better/1441164416?i=1441164418"},{"Song":"\"I Wanna Be Your Man\"","Core catalogue release(s)":"With the Beatles","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Starr","Year":1963,"Spotify":"https://open.spotify.com/track/0sIZcoe69iSym9AecvZ7CT?si=0994047c027e407c","Apple Music":"https://music.apple.com/us/album/i-wanna-be-your-man/1441164362?i=1441164834"},{"Song":"\"I Want to Hold Your Hand\"","Core catalogue release(s)":"Past Masters","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/27E39dDg0Bx1RzkF3eJJsb?si=a6cf8eaaac874111","Apple Music":"https://music.apple.com/us/album/i-want-to-hold-your-hand/1441133181?i=1441133632"},{"Song":"\"I Want to Tell You\"","Core catalogue release(s)":"Revolver","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1966,"Spotify":"https://open.spotify.com/track/7orb0y6ySGdsYZywMoQtsD?si=4ed180771af54768","Apple Music":"https://music.apple.com/us/album/i-want-to-tell-you/1441164670?i=1441165144"},{"Song":"\"I Want You (She's So Heavy)\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1969,"Spotify":"https://open.spotify.com/track/3Z25k4ZF6QENy2d9YatsM5?si=88c2c5e9cf514106","Apple Music":"https://music.apple.com/us/album/i-want-you-shes-so-heavy/1441164426?i=1441164587"},{"Song":"\"I Will\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1968,"Spotify":"https://open.spotify.com/track/09x9v1o51dbqi5H0u7UGfp?si=12a290ae61ef4c1d","Apple Music":"https://music.apple.com/us/album/i-will/1441133180?i=1441133910"},{"Song":"\"If I Fell\"","Core catalogue release(s)":"A Hard Day's Night","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/1hgvykolO4kBIEozATmpyj?si=c50c31231b994bb4","Apple Music":"https://music.apple.com/us/album/if-i-fell/1441164416?i=1441164419"},{"Song":"\"If I Needed Someone\"","Core catalogue release(s)":"Rubber Soul","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1965,"Spotify":"https://open.spotify.com/track/7C6hdDIz90Uf5YmdZnYbJJ?si=00801b73a2794d1d","Apple Music":"https://music.apple.com/us/album/if-i-needed-someone/1441164359?i=1441164833"},{"Song":"\"I'll Be Back\"","Core catalogue release(s)":"A Hard Day's Night","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/3lSi6qfnp2YZazTzcOLBZk?si=507cf376e93e4c1d","Apple Music":"https://music.apple.com/us/album/ill-be-back/1441164416?i=1441164581"},{"Song":"\"I'll Cry Instead\"","Core catalogue release(s)":"A Hard Day's Night","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/01xMiErR26kH1KCif6uEYI?si=d1ddc91c233d4b35","Apple Music":"https://music.apple.com/us/album/ill-cry-instead/1441164416?i=1441164425"},{"Song":"\"I'll Follow the Sun\"","Core catalogue release(s)":"Beatles for Sale","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1964,"Spotify":"https://open.spotify.com/track/45WX2cfbL8bCIqv3rOq1G3?si=7f29ac9a21ba4867","Apple Music":"https://music.apple.com/us/album/ill-follow-the-sun/1441165005?i=1441165095"},{"Song":"\"I'll Get You\"","Core catalogue release(s)":"Past Masters\n(B-side of \"She Loves You\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/4VMOdHVfB57lNhSDadhOBc?si=7d876fcab1bb453c","Apple Music":"https://music.apple.com/us/album/ill-get-you/1441133181?i=1441133621"},{"Song":"\"I'm a Loser\"","Core catalogue release(s)":"Beatles for Sale","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/7wC4EW11mBVxDK3xdC7FTf?si=4b493fbb8f734bdb","Apple Music":"https://music.apple.com/us/album/im-a-loser/1441165005?i=1441165091"},{"Song":"\"I'm Down\"","Core catalogue release(s)":"Past Masters\n(B-side of \"Help!\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1965,"Spotify":"https://open.spotify.com/track/5ovYFa8Em47SgPmhBlZb5N?si=18b3ef0fc8e24f2a","Apple Music":"https://music.apple.com/us/album/im-down/1441133181?i=1441134085"},{"Song":"\"I'm Happy Just to Dance with You\"","Core catalogue release(s)":"A Hard Day's Night","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Harrison","Year":1964,"Spotify":"https://open.spotify.com/track/0gd50I2gKioJ59C827EdAY?si=e94cdf5d00dd4492","Apple Music":"https://music.apple.com/us/album/im-happy-just-to-dance-with-you/1441164416?i=1441164420"},{"Song":"\"I'm Looking Through You\"","Core catalogue release(s)":"Rubber Soul","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1965,"Spotify":"https://open.spotify.com/track/5E3BVY66TEDexFutOO5GeS?si=8abf1887fce446f0","Apple Music":"https://music.apple.com/us/album/im-looking-through-you/1441164359?i=1441164821"},{"Song":"\"I'm Only Sleeping\"","Core catalogue release(s)":"Revolver","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1966,"Spotify":"https://open.spotify.com/track/2ylCrFiBu98SC0vFfaCent?si=361d88c44f444a23","Apple Music":"https://music.apple.com/us/album/im-only-sleeping/1441164670?i=1441164808"},{"Song":"\"I'm So Tired\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1968,"Spotify":"https://open.spotify.com/track/2X9H5BokS1u5O46YpNYNsZ?si=b6e0938d16e6426b","Apple Music":"https://music.apple.com/us/album/im-so-tired/1441133180?i=1441133702"},{"Song":"\"I've Got a Feeling\"","Core catalogue release(s)":"Let It Be","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1970,"Spotify":"https://open.spotify.com/track/3gwRWIbr5ycEVLIAXrWaw7?si=d60ff85e9e8643fd","Apple Music":"https://music.apple.com/us/album/ive-got-a-feeling/1441164495?i=1441164742"},{"Song":"\"I've Just Seen a Face\"","Core catalogue release(s)":"Help!","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1965,"Spotify":"https://open.spotify.com/track/788U1Sqej9M6c4iikuDGxO?si=53d9130ba8c047dd","Apple Music":"https://music.apple.com/us/album/ive-just-seen-a-face/1441164524?i=1441164801"},{"Song":"\"In My Life\"","Core catalogue release(s)":"Rubber Soul","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1965,"Spotify":"https://open.spotify.com/track/3KfbEIOC7YIv90FIfNSZpo?si=a484bd2d116b4ad1","Apple Music":"https://music.apple.com/us/album/in-my-life/1441164359?i=1441164829"},{"Song":"\"The Inner Light\"","Core catalogue release(s)":"Past Masters\n(B-side of \"Lady Madonna\")","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1968,"Spotify":"https://open.spotify.com/track/379hxtlY5LvbPQa5LL6dPo?si=e23156b0d9454766","Apple Music":"https://music.apple.com/us/album/the-inner-light/1441133181?i=1441134211"},{"Song":"\"It Won't Be Long\"","Core catalogue release(s)":"With the Beatles","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/4ekUX4pWizXXksJe0JfS9U?si=b9d16f08303f4d77","Apple Music":"https://music.apple.com/us/album/it-wont-be-long/1441164362?i=1441164369"},{"Song":"\"It's All Too Much\"","Core catalogue release(s)":"Yellow Submarine","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1969,"Spotify":"https://open.spotify.com/track/2bQZ9BBhP7vSBiyDz7KXnv?si=5d9d05587ff34b38","Apple Music":"https://music.apple.com/us/album/its-all-too-much/1441164525?i=1441164530"},{"Song":"\"It's Only Love\"","Core catalogue release(s)":"Help!","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1965,"Spotify":"https://open.spotify.com/track/2ue1KRstSKHF8jQkIJZiNC?si=6e46e634bc224c38","Apple Music":"https://music.apple.com/us/album/its-only-love/1441164524?i=1441164762"},{"Song":"\"Julia\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1968,"Spotify":"https://open.spotify.com/track/5FnpXVgDOk2sLT58qM22Of?si=8b9e404dfd224cd0","Apple Music":"https://music.apple.com/us/album/julia/1441133180?i=1441133915"},{"Song":"\"Kansas City/Hey-Hey-Hey-Hey!\"","Core catalogue release(s)":"Beatles for Sale","Songwriter(s)":"Jerry Leiber\nMike Stoller\nRichard Penniman","Lead vocal(s)":"McCartney","Year":1964,"Spotify":"https://open.spotify.com/track/5xf0zdP4KCfshyVn02D3Ea?si=c19ae2d3e31e4702","Apple Music":"https://music.apple.com/us/album/kansas-city-hey-hey-hey-hey/1441165005?i=1441165098"},{"Song":"\"Komm, gib mir deine Hand\" (German version of \"I Want to Hold Your Hand\")","Core catalogue release(s)":"Past Masters","Songwriter(s)":"Lennon\nMcCartney\nJean Nicolas\nHeinz Hellmer","Lead vocal(s)":"Lennon\nMcCartney","Year":1964,"Spotify":"https://open.spotify.com/track/6oUjSwtifVaM8iIN01KVzC?si=38b42f41c4b54012","Apple Music":"https://music.apple.com/us/album/komm-gib-mir-deine-hand/1441133181?i=1441133650"},{"Song":"\"Lady Madonna\"","Core catalogue release(s)":"Past Masters","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1968,"Spotify":"https://open.spotify.com/track/1tM9TBNPjieSOZ2d5VAQ1y?si=eaea53c5d8c54afc","Apple Music":"https://music.apple.com/us/album/lady-madonna/1441133181?i=1441134205"},{"Song":"\"Let It Be\"","Core catalogue release(s)":"Let It Be\nPast Masters","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1970,"Spotify":"https://open.spotify.com/track/7iN1s7xHE4ifF5povM6A48?si=52444c9e1f864c59","Apple Music":"https://music.apple.com/us/album/let-it-be/1441164495?i=1441164738"},{"Song":"\"Little Child\"","Core catalogue release(s)":"With the Beatles","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/0KogQrSowDnZoU8GSpaxkj?si=cd8d90aced6f4962","Apple Music":"https://music.apple.com/us/album/little-child/1441164362?i=1441164630"},{"Song":"\"The Long and Winding Road\"","Core catalogue release(s)":"Let It Be","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1970,"Spotify":"https://open.spotify.com/track/3mlMpmY8oZIBFc39D9zLbh?si=abd49f526f094631","Apple Music":"https://music.apple.com/us/album/the-long-and-winding-road/1441164495?i=1441164893"},{"Song":"\"Long Tall Sally\"","Core catalogue release(s)":"Past Masters","Songwriter(s)":"Robert Blackwell\nEnotris Johnson\nRichard Penniman","Lead vocal(s)":"McCartney","Year":1964,"Spotify":"https://open.spotify.com/track/7ds98B8y5BQltzC60Gdkri?si=71c987ea1edf4efe","Apple Music":"https://music.apple.com/us/album/long-tall-sally/1441133181?i=1441133700"},{"Song":"\"Long, Long, Long\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1968,"Spotify":"https://open.spotify.com/track/40d2EcaOOCUjDzzo2YvUWn?si=764c4c3c67854998","Apple Music":"https://music.apple.com/us/album/long-long-long/1441133180?i=1441134213"},{"Song":"\"Love Me Do\"","Core catalogue release(s)":"Please Please Me\nPast Masters","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1962,"Spotify":"https://open.spotify.com/track/3VbGCXWRiouAq8VyMYN2MI?si=2e2c5098c4a24c38","Apple Music":"https://music.apple.com/us/album/love-me-do/1441164816?i=1441165128"},{"Song":"\"Love You To\"","Core catalogue release(s)":"Revolver","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1966,"Spotify":"https://open.spotify.com/track/4RdJFhfLQcezwN5LsXl4qP?si=50d8cf56aa324db3","Apple Music":"https://music.apple.com/us/album/love-you-to/1441164670?i=1441164815"},{"Song":"\"Lovely Rita\"","Core catalogue release(s)":"Sgt. Pepper's Lonely Hearts Club Band","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1967,"Spotify":"https://open.spotify.com/track/6h9W5FxX4E9lUFsyq8j1AD?si=9af26b78595d44fc","Apple Music":"https://music.apple.com/us/album/lovely-rita/1441164604?i=1441165153"},{"Song":"\"Lucy in the Sky with Diamonds\"","Core catalogue release(s)":"Sgt. Pepper's Lonely Hearts Club Band","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1967,"Spotify":"https://open.spotify.com/track/25yQPHgC35WNnnOUqFhgVR?si=c8e4bba553164366","Apple Music":"https://music.apple.com/us/album/lucy-in-the-sky-with-diamonds/1441164604?i=1441164852"},{"Song":"\"Maggie Mae\"","Core catalogue release(s)":"Let It Be","Songwriter(s)":"Traditional, arr.\nLennon\nMcCartney\nHarrison\nStarkey","Lead vocal(s)":"Lennon","Year":1970,"Spotify":"https://open.spotify.com/track/2VsX1BoWSGiuVXGiFSUr6h?si=04485a8cb1804683","Apple Music":"https://music.apple.com/us/album/maggie-mae/1441164495?i=1441164741"},{"Song":"\"Magical Mystery Tour\"","Core catalogue release(s)":"Magical Mystery Tour","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1967,"Spotify":"https://open.spotify.com/track/0qHMhBZqYb99yhX9BHcIkV?si=cb976b2240f646c6","Apple Music":"https://music.apple.com/us/album/magical-mystery-tour/1441163490?i=1441163496"},{"Song":"\"Martha My Dear\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1968,"Spotify":"https://open.spotify.com/track/1swmf4hFMJYRNA8Rq9PVaW?si=b795096e2f854ea8","Apple Music":"https://music.apple.com/us/album/martha-my-dear/1441133180?i=1441133690"},{"Song":"\"Matchbox\"","Core catalogue release(s)":"Past Masters","Songwriter(s)":"Carl Perkins","Lead vocal(s)":"Starr","Year":1964,"Spotify":"https://open.spotify.com/track/4jXXFZtmxoYU15WKTIiYrE?si=5d46ff0367ff4419","Apple Music":"https://music.apple.com/us/album/matchbox/1441133181?i=1441133856"},{"Song":"\"Maxwell's Silver Hammer\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1969,"Spotify":"https://open.spotify.com/track/2S8xyNRJX1XQdo3qnTuovI?si=7dec8361cbce4c17","Apple Music":"https://music.apple.com/us/album/maxwells-silver-hammer/1441164426?i=1441164584"},{"Song":"\"Mean Mr. Mustard\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1969,"Spotify":"https://open.spotify.com/track/4JOyMhad5dD81uGYLGgKrS?si=d3091b8585074daa","Apple Music":"https://music.apple.com/us/album/mean-mr-mustard/1441164426?i=1441164595"},{"Song":"\"Michelle\"","Core catalogue release(s)":"Rubber Soul","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1965,"Spotify":"https://open.spotify.com/track/5By7Pzgl6TMuVJG168VWzS?si=f707d836c2ae47a4","Apple Music":"https://music.apple.com/us/album/michelle/1441164359?i=1441164629"},{"Song":"\"Misery\"","Core catalogue release(s)":"Please Please Me","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/40qXGg5nRbcWzcFb26KWkQ?si=eb84d1aeaa6c4f1b","Apple Music":"https://music.apple.com/us/album/misery/1441164816?i=1441164820"},{"Song":"\"Money (That's What I Want)\"","Core catalogue release(s)":"With the Beatles","Songwriter(s)":"Berry Gordy\nJanie Bradford","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/3zw4FTrVNfy2teEkV9FOvh?si=155c683c06f2400a","Apple Music":"https://music.apple.com/us/album/money-thats-what-i-want/1441164362?i=1441165034"},{"Song":"\"Mother Nature's Son\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1968,"Spotify":"https://open.spotify.com/track/6TjUg1cTUzWHbal6yQAi7c?si=f438865c1e5c4086","Apple Music":"https://music.apple.com/us/album/mother-natures-son/1441133180?i=1441134096"},{"Song":"\"Mr. Moonlight\"","Core catalogue release(s)":"Beatles for Sale","Songwriter(s)":"Roy Lee Johnson","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/6pPOkr2OxhQ6htrzOiDmq9?si=d3bb094422234ee2","Apple Music":"https://music.apple.com/us/album/mr-moonlight/1441165005?i=1441165097"},{"Song":"\"The Night Before\"","Core catalogue release(s)":"Help!","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1965,"Spotify":"https://open.spotify.com/track/5xcfepnz1v7a83T8An9gjw?si=bc17cc05f20b4593","Apple Music":"https://music.apple.com/us/album/the-night-before/1441164524?i=1441164543"},{"Song":"\"No Reply\"","Core catalogue release(s)":"Beatles for Sale","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/4ltC6PrqkTtpcRNi5lvS4z?si=60c17f2bf3f4405d","Apple Music":"https://music.apple.com/us/album/no-reply/1441165005?i=1441165006"},{"Song":"\"Norwegian Wood (This Bird Has Flown)\"","Core catalogue release(s)":"Rubber Soul","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1965,"Spotify":"https://open.spotify.com/track/1H7gMYGykdtwZOV6s1N0by?si=55658e574b0c474b","Apple Music":"https://music.apple.com/us/album/norwegian-wood-this-bird-has-flown/1441164359?i=1441164370"},{"Song":"\"Not a Second Time\"","Core catalogue release(s)":"With the Beatles","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/5vl0sRtrQM1BTSAxQZFqEN?si=d30df0e34d9e496a","Apple Music":"https://music.apple.com/us/album/not-a-second-time/1441164362?i=1441165031"},{"Song":"\"Nowhere Man\"","Core catalogue release(s)":"Rubber Soul","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1965,"Spotify":"https://open.spotify.com/track/5SUlhldQJtOhUr2GzH5RI7?si=af532cce4e61411e","Apple Music":"https://music.apple.com/us/album/nowhere-man/1441164359?i=1441164614"},{"Song":"\"Ob-La-Di, Ob-La-Da\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1968,"Spotify":"https://open.spotify.com/track/1gFNm7cXfG1vSMcxPpSxec?si=083adc8475864be3","Apple Music":"https://music.apple.com/us/album/ob-la-di-ob-la-da/1441133180?i=1441133613"},{"Song":"\"Octopus's Garden\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Starkey","Lead vocal(s)":"Starr","Year":1969,"Spotify":"https://open.spotify.com/track/0suLngfo7rJoetk7Ub6N8l?si=bc6735b2103c4884","Apple Music":"https://music.apple.com/us/album/octopuss-garden/1441164426?i=1441164586"},{"Song":"\"Oh! Darling\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1969,"Spotify":"https://open.spotify.com/track/2mxByJWOajjiVsLWjNXvDJ?si=1e2b9384c68342bf","Apple Music":"https://music.apple.com/us/album/oh-darling/1441164426?i=1441164585"},{"Song":"\"Old Brown Shoe\"","Core catalogue release(s)":"Past Masters\n(B-side of \"The Ballad of John and Yoko\")","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1969,"Spotify":"https://open.spotify.com/track/7vMCInGW1N1uTFC1LoklEM?si=4c5dc078c873455f","Apple Music":"https://music.apple.com/us/album/old-brown-shoe/1441133181?i=1441134485"},{"Song":"\"One After 909\"","Core catalogue release(s)":"Let It Be","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1970,"Spotify":"https://open.spotify.com/track/50qHmeex1nPTyQTwBXjSE4?si=9d4b112dd23d4fbc","Apple Music":"https://music.apple.com/us/album/one-after-909/1441164495?i=1441164748"},{"Song":"\"Only a Northern Song\"","Core catalogue release(s)":"Yellow Submarine","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1969,"Spotify":"https://open.spotify.com/track/4phXWLTSlC1BEogSWhJMDD?si=561eabdf295641a8","Apple Music":"https://music.apple.com/us/album/only-a-northern-song/1441164525?i=1441164527"},{"Song":"\"Paperback Writer\"","Core catalogue release(s)":"Past Masters","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1966,"Spotify":"https://open.spotify.com/track/4401c08DdNwwGEg8WGCkQf?si=dfe0568b8b124573","Apple Music":"https://music.apple.com/us/album/paperback-writer/1441133181?i=1441134100"},{"Song":"\"Penny Lane\"","Core catalogue release(s)":"Magical Mystery Tour\n(Double A-side with \"Strawberry Fields Forever\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1967,"Spotify":"https://open.spotify.com/track/1h04XMpzGzmAudoI6VHBgA?si=0147fda110e440fc","Apple Music":"https://music.apple.com/us/album/penny-lane/1441163490?i=1441163777"},{"Song":"\"Piggies\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1968,"Spotify":"https://open.spotify.com/track/4ZmjfLdJXbqjAENqk7eWSE?si=c4fb492e22384a2a","Apple Music":"https://music.apple.com/us/album/piggies/1441133180?i=1441133850"},{"Song":"\"Please Mr. Postman\"","Core catalogue release(s)":"With the Beatles","Songwriter(s)":"Georgia Dobbins\nWilliam Garrett\nBrian Holland\nRobert Bateman\nFreddie Gorman","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/6wfK1R6FoLpmUA9lk5ll4T?si=90d653d234b84630","Apple Music":"https://music.apple.com/us/album/please-mister-postman/1441164362?i=1441164635"},{"Song":"\"Please Please Me\"","Core catalogue release(s)":"Please Please Me","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/6EHuOufBeL6vk3TvVJB5qo?si=6234bdb7bed044ff","Apple Music":"https://music.apple.com/us/album/please-please-me/1441164816?i=1441165126"},{"Song":"\"Polythene Pam\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1969,"Spotify":"https://open.spotify.com/track/1FTCA6wQwulQFokDddKE68?si=e311a66e56574748","Apple Music":"https://music.apple.com/us/album/polythene-pam/1441164426?i=1441164596"},{"Song":"\"P.S. I Love You\"","Core catalogue release(s)":"Please Please Me","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1962,"Spotify":"https://open.spotify.com/track/7Msq9qojB7yORuJvz49iUy?si=d24046ac44264bc5","Apple Music":"https://music.apple.com/us/album/p-s-i-love-you/1441164816?i=1441165130"},{"Song":"\"Rain\"","Core catalogue release(s)":"Past Masters\n(B-side of \"Paperback Writer\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1966,"Spotify":"https://open.spotify.com/track/48TNLcToLs8DWkdj5vYdiW?si=bac26236411d4bd1","Apple Music":"https://music.apple.com/us/album/rain/1441133181?i=1441134196"},{"Song":"\"Revolution\"","Core catalogue release(s)":"Past Masters\n(B-side of \"Hey Jude\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1968,"Spotify":"https://open.spotify.com/track/4qh4lu4xf4r3ZkBoyeajuc?si=b225679ce7fc4b93","Apple Music":"https://music.apple.com/us/album/revolution/1441133181?i=1441134384"},{"Song":"\"Revolution 1\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1968,"Spotify":"https://open.spotify.com/track/1aOzDhi5a1RWWRy5dmYA8I?si=a0853f03d7254e1c","Apple Music":"https://music.apple.com/us/album/revolution-1/1441133180?i=1441134376"},{"Song":"\"Revolution 9\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Sound Collage","Year":1968,"Spotify":"https://open.spotify.com/track/5dZ8PeKKZJLIQAWNTdp8WX?si=6f6ab2ca35d445c0","Apple Music":"https://music.apple.com/us/album/revolution-9/1441133180?i=1441134482"},{"Song":"\"Rock and Roll Music\"","Core catalogue release(s)":"Beatles for Sale","Songwriter(s)":"Chuck Berry","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/7Ho3T7ERfooiAfvODaMQ2N?si=256e71b5f8cc4ecc","Apple Music":"https://music.apple.com/us/album/rock-and-roll-music/1441165005?i=1441165094"},{"Song":"\"Rocky Raccoon\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1968,"Spotify":"https://open.spotify.com/track/1ITQbrueGLl581a25XXm9c?si=f4b8df0aabb84251","Apple Music":"https://music.apple.com/us/album/rocky-raccoon/1441133180?i=1441133857"},{"Song":"\"Roll Over Beethoven\"","Core catalogue release(s)":"With the Beatles","Songwriter(s)":"Chuck Berry","Lead vocal(s)":"Harrison","Year":1963,"Spotify":"https://open.spotify.com/track/3idqWaBn3mRdsIodCU6uBi?si=a9e9c62a17b54b33","Apple Music":"https://music.apple.com/us/album/roll-over-beethoven/1441164362?i=1441164828"},{"Song":"\"Run for Your Life\"","Core catalogue release(s)":"Rubber Soul","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1965,"Spotify":"https://open.spotify.com/track/4gUYV3ktbaOeAK5KrXMWV5?si=7e188a7436f04884","Apple Music":"https://music.apple.com/us/album/run-for-your-life/1441164359?i=1441164846"},{"Song":"\"Savoy Truffle\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1968,"Spotify":"https://open.spotify.com/track/5iyCSUM7zzficwaGo8GIoc?si=1b4813b89e8949a0","Apple Music":"https://music.apple.com/us/album/savoy-truffle/1441133180?i=1441134470"},{"Song":"\"Sexy Sadie\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1968,"Spotify":"https://open.spotify.com/track/2tBv9tAdqEbLNDi5smSjbg?si=a673d6f394d74576","Apple Music":"https://music.apple.com/us/album/sexy-sadie/1441133180?i=1441134198"},{"Song":"\"Sgt. Pepper's Lonely Hearts Club Band\"","Core catalogue release(s)":"Sgt. Pepper's Lonely Hearts Club Band","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1967,"Spotify":"https://open.spotify.com/track/4fUKE8EULjQdHF4zb0M8FO?si=73069f02df8b40a6","Apple Music":"https://music.apple.com/us/album/sgt-peppers-lonely-hearts-club-band/1441164604?i=1441164721"},{"Song":"\"Sgt. Pepper's Lonely Hearts Club Band (Reprise)\"","Core catalogue release(s)":"Sgt. Pepper's Lonely Hearts Club Band","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney\nLennon\nHarrison","Year":1967,"Spotify":"https://open.spotify.com/track/42ocGQCOT0xYtV3f5kJDsD?si=87a88e0a994141c1","Apple Music":"https://music.apple.com/us/album/sgt-peppers-lonely-hearts-club-band-reprise/1441164604?i=1441165163"},{"Song":"\"She Came In Through the Bathroom Window\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1969,"Spotify":"https://open.spotify.com/track/2jtUGFsqanQ82zqDlhiKIp?si=3567ef3c546f4492","Apple Music":"https://music.apple.com/us/album/she-came-in-through-the-bathroom-window/1441164426?i=1441164599"},{"Song":"\"She Loves You\"","Core catalogue release(s)":"Past Masters","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon\nMcCartney","Year":1963,"Spotify":"https://open.spotify.com/track/48JM82SHQTBYkhEYhMaOaa?si=de7f29a3f8de4922","Apple Music":"https://music.apple.com/us/album/she-loves-you/1441133181?i=1441133611"},{"Song":"\"She Said She Said\"","Core catalogue release(s)":"Revolver","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1966,"Spotify":"https://open.spotify.com/track/3VSuWxZM6x6V3ig5nYtikL?si=01d67874cd894fb3","Apple Music":"https://music.apple.com/us/album/she-said-she-said/1441164670?i=1441165129"},{"Song":"\"She's a Woman\"","Core catalogue release(s)":"Past Masters\n(B-side of \"I Feel Fine\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1964,"Spotify":"https://open.spotify.com/track/6vsb1bU8oW7iqtjH2GeEaS?si=5a1655a629954198","Apple Music":"https://music.apple.com/us/album/shes-a-woman/1441133181?i=1441133899"},{"Song":"\"She's Leaving Home\"","Core catalogue release(s)":"Sgt. Pepper's Lonely Hearts Club Band","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1967,"Spotify":"https://open.spotify.com/track/3PjMtNzwhDHqxoKudm6GvF?si=e78c6ec6c6eb42ae","Apple Music":"https://music.apple.com/us/album/shes-leaving-home/1435552131?i=1435552497"},{"Song":"\"Sie liebt dich\" (German version of \"She Loves You\")","Core catalogue release(s)":"Past Masters\n(B-side of \"Komm, gib mir deine Hand\")","Songwriter(s)":"Lennon\nMcCartney\nJean Nicolas\nLee Montogue","Lead vocal(s)":"Lennon\nMcCartney","Year":1964,"Spotify":"https://open.spotify.com/track/5rkgbGIOTBGlKTAawWb06X?si=ff3b0b422c2844ce","Apple Music":"https://music.apple.com/us/album/sie-liebt-dich/1441133181?i=1441133688"},{"Song":"\"Slow Down\"","Core catalogue release(s)":"Past Masters","Songwriter(s)":"Larry Williams","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/2x7vw79tKsW99s8sbyuvPM?si=f1abd55cadba4e5f","Apple Music":"https://music.apple.com/us/album/slow-down/1441133181?i=1441133842"},{"Song":"\"Something\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1969,"Spotify":"https://open.spotify.com/track/0pNeVovbiZHkulpGeOx1Gj?si=ea9d898198734eb1","Apple Music":"https://music.apple.com/us/album/something/1441164426?i=1441164582"},{"Song":"\"Strawberry Fields Forever\"","Core catalogue release(s)":"Magical Mystery Tour\n(Double A-side with \"Penny Lane\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1967,"Spotify":"https://open.spotify.com/track/3Am0IbOxmvlSXro7N5iSfZ?si=af0e53e7db1a420c","Apple Music":"https://music.apple.com/us/album/strawberry-fields-forever/1441163490?i=1441163771"},{"Song":"\"Sun King\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1969,"Spotify":"https://open.spotify.com/track/4nwKdZID1ht0lDBJ5h2p87?si=c78c8feb96d349fb","Apple Music":"https://music.apple.com/us/album/sun-king/1441164426?i=1441164594"},{"Song":"\"A Taste of Honey\"","Core catalogue release(s)":"Please Please Me","Songwriter(s)":"Bobby Scott\nRic Marlow","Lead vocal(s)":"McCartney","Year":1963,"Spotify":"https://open.spotify.com/track/7fh53ta3vAOGJMQ4i5tCHe?si=7596d1deba5749e2","Apple Music":"https://music.apple.com/us/album/a-taste-of-honey/1441164816?i=1441165134"},{"Song":"\"Taxman\"","Core catalogue release(s)":"Revolver","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1966,"Spotify":"https://open.spotify.com/track/4BRkPBUxOYffM2QXVlq7aC?si=7fc76cca0c8e492e","Apple Music":"https://music.apple.com/us/album/taxman/1441164670?i=1441164799"},{"Song":"\"Tell Me What You See\"","Core catalogue release(s)":"Help!","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1965,"Spotify":"https://open.spotify.com/track/2jnr9KaaMAmvk0zMcM9UzV?si=257b82891b004281","Apple Music":"https://music.apple.com/us/album/tell-me-what-you-see/1441164524?i=1441164800"},{"Song":"\"Tell Me Why\"","Core catalogue release(s)":"A Hard Day's Night","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/0Wzp5pWPoX0YoBg002HXL9?si=53aa90c98c634cc9","Apple Music":"https://music.apple.com/us/album/tell-me-why/1441164416?i=1441164422"},{"Song":"\"Thank You Girl\"","Core catalogue release(s)":"Past Masters\n(B-side of \"From Me to You\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/3k6zSunlStXxWF0s1063lk?si=b395d4c790f24669","Apple Music":"https://music.apple.com/us/album/thank-you-girl/1441133181?i=1441133434"},{"Song":"\"There's a Place\"","Core catalogue release(s)":"Please Please Me","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/4dessGxnKXmTbHPhVgqODq?si=fcb20932e5af4928","Apple Music":"https://music.apple.com/us/album/theres-a-place/1441164816?i=1441165135"},{"Song":"\"Things We Said Today\"","Core catalogue release(s)":"A Hard Day's Night","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1964,"Spotify":"https://open.spotify.com/track/0voUr8lubIafUVJlauJxYF?si=b6771c0fe79b476a","Apple Music":"https://music.apple.com/us/album/things-we-said-today/1441164416?i=1441164427"},{"Song":"\"Think for Yourself\"","Core catalogue release(s)":"Rubber Soul","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1965,"Spotify":"https://open.spotify.com/track/64bKVrkaXQAKx04dLHqCNz?si=431a2b601c094306","Apple Music":"https://music.apple.com/us/album/think-for-yourself/1441164359?i=1441164623"},{"Song":"\"This Boy\"","Core catalogue release(s)":"Past Masters\n(B-side of \"I Want to Hold Your Hand\" (UK))","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/0oQshbv1BFLZ61b1tQ4Eqg?si=32ba8f8454ec4a4c","Apple Music":"https://music.apple.com/us/album/this-boy/1441133181?i=1441133642"},{"Song":"\"Ticket to Ride\"","Core catalogue release(s)":"Help!","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1965,"Spotify":"https://open.spotify.com/track/7CZiDzGVjUssMSOXrDNYHL?si=a9d0679bcf0b4759","Apple Music":"https://music.apple.com/us/album/ticket-to-ride/1441164524?i=1441164669"},{"Song":"\"Till There Was You\"","Core catalogue release(s)":"With the Beatles","Songwriter(s)":"Meredith Willson","Lead vocal(s)":"McCartney","Year":1963,"Spotify":"https://open.spotify.com/track/0ESIjVxnDnCDaTPo6sStHm?si=bc2ee0bf7fee46a1","Apple Music":"https://music.apple.com/us/album/till-there-was-you/1441164362?i=1441164632"},{"Song":"\"Tomorrow Never Knows\"","Core catalogue release(s)":"Revolver","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1966,"Spotify":"https://open.spotify.com/track/00oZhqZIQfL9P5CjOP6JsO?si=eaf72b85d5e54e9c","Apple Music":"https://music.apple.com/us/album/tomorrow-never-knows/1441164670?i=1441165147"},{"Song":"\"Twist and Shout\"","Core catalogue release(s)":"Please Please Me","Songwriter(s)":"Phil Medley\nBert Berns","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/5ZBeML7Lf3FMEVviTyvi8l?si=4453d6cf64324150","Apple Music":"https://music.apple.com/us/album/twist-and-shout/1441164816?i=1441165136"},{"Song":"\"Two of Us\"","Core catalogue release(s)":"Let It Be","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1970,"Spotify":"https://open.spotify.com/track/0CaBBQsaAiRHhiLmzi7ZRp?si=e46fd24888d14998","Apple Music":"https://music.apple.com/us/album/two-of-us/1441164495?i=1441164497"},{"Song":"\"Wait\"","Core catalogue release(s)":"Rubber Soul","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1965,"Spotify":"https://open.spotify.com/track/0CGbof9amBnsNlRhZ8IY2H?si=102bded18ea94d30","Apple Music":"https://music.apple.com/us/album/wait/1441164359?i=1441164831"},{"Song":"\"We Can Work It Out\"","Core catalogue release(s)":"Past Masters\n(Double A-side with \"Day Tripper\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1965,"Spotify":"https://open.spotify.com/track/7tBAxQ6hD4mhr1sYQhwWDP?si=dd0a1f1afe094608","Apple Music":"https://music.apple.com/us/album/we-can-work-it-out/1441133181?i=1441134094"},{"Song":"\"What Goes On\"","Core catalogue release(s)":"Rubber Soul","Songwriter(s)":"Lennon\nMcCartney\nStarkey","Lead vocal(s)":"Starr","Year":1965,"Spotify":"https://open.spotify.com/track/19QXdPRZFHI5kNK3tN8Mh7?si=a85fd03f911743e4","Apple Music":"https://music.apple.com/us/album/what-goes-on/1441164359?i=1441164631"},{"Song":"\"What You're Doing\"","Core catalogue release(s)":"Beatles for Sale","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1964,"Spotify":"https://open.spotify.com/track/6C6y4OWK1Ki3FVF1TIonxW?si=3086a135b1a2405d","Apple Music":"https://music.apple.com/us/album/what-youre-doing/1441165005?i=1441165105"},{"Song":"\"When I Get Home\"","Core catalogue release(s)":"A Hard Day's Night","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/4oLQ0imA5IDtNUnhFKY87q?si=af2a5d3ac71043d0","Apple Music":"https://music.apple.com/us/album/when-i-get-home/1441164416?i=1441164428"},{"Song":"\"When I'm Sixty-Four\"","Core catalogue release(s)":"Sgt. Pepper's Lonely Hearts Club Band","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1967,"Spotify":"https://open.spotify.com/track/1NrbnHlR2BFREcyWXHIHip?si=efd4579a7ed04ca2","Apple Music":"https://music.apple.com/us/album/when-im-sixty-four/1441164604?i=1441164866"},{"Song":"\"While My Guitar Gently Weeps\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1968,"Spotify":"https://open.spotify.com/track/389QX9Q1eUOEZ19vtzzI9O?si=69a42b34156e4248","Apple Music":"https://music.apple.com/us/album/while-my-guitar-gently-weeps/1441133180?i=1441133644"},{"Song":"\"Why Don't We Do It in the Road?\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1968,"Spotify":"https://open.spotify.com/track/4eLIq1nQNwz2qLu8DeiWIp?si=0d9ffa69d6094fde","Apple Music":"https://music.apple.com/us/album/why-dont-we-do-it-in-the-road/1441133180?i=1441133902"},{"Song":"\"Wild Honey Pie\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1968,"Spotify":"https://open.spotify.com/track/6j67aNAPeQ31uw4qw4rpLa?si=58b8949c121a4e64","Apple Music":"https://music.apple.com/us/album/wild-honey-pie/1441133180?i=1441133624"},{"Song":"\"With a Little Help from My Friends\"","Core catalogue release(s)":"Sgt. Pepper's Lonely Hearts Club Band","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Starr","Year":1967,"Spotify":"https://open.spotify.com/track/2RnPATK99oGOZygnD2GTO6?si=bbc733bdf0294eb7","Apple Music":"https://music.apple.com/us/album/with-a-little-help-from-my-friends/1441164604?i=1441164851"},{"Song":"\"Within You Without You\"","Core catalogue release(s)":"Sgt. Pepper's Lonely Hearts Club Band","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1967,"Spotify":"https://open.spotify.com/track/3Umg8CDhO8dOSj7yBTInYb?si=82497ea21e27435b","Apple Music":"https://music.apple.com/us/album/within-you-without-you/1441164604?i=1441164865"},{"Song":"\"The Word\"","Core catalogue release(s)":"Rubber Soul","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1965,"Spotify":"https://open.spotify.com/track/4GBaPHvAyj4V2jeobD9tsy?si=4d9f9793ee9942d0","Apple Music":"https://music.apple.com/us/album/the-word/1441164359?i=1441164626"},{"Song":"\"Words of Love\"","Core catalogue release(s)":"Beatles for Sale","Songwriter(s)":"Buddy Holly","Lead vocal(s)":"Lennon\nMcCartney","Year":1964,"Spotify":"https://open.spotify.com/track/42qkSeX6HNJYHxlk6cWoFe?si=f38c41a435574635","Apple Music":"https://music.apple.com/us/album/words-of-love/1441165005?i=1441165100"},{"Song":"\"Yellow Submarine\"","Core catalogue release(s)":"Revolver\nYellow Submarine","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Starr","Year":1966,"Spotify":"https://open.spotify.com/track/50xwQXPtfNZFKFeZ0XePWc?si=dbc6ae491726446f","Apple Music":"https://music.apple.com/us/album/yellow-submarine/1468023095?i=1468031831"},{"Song":"\"Yer Blues\"","Core catalogue release(s)":"The Beatles (\"White Album\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1968,"Spotify":"https://open.spotify.com/track/2AsGApoUuN8pTM17Lq9eUd?si=42fdbcf8f91b465e","Apple Music":"https://music.apple.com/us/album/yer-blues/1441133180?i=1441134092"},{"Song":"\"Yes It Is\"","Core catalogue release(s)":"Past Masters\n(B-side of \"Ticket to Ride\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1965,"Spotify":"https://open.spotify.com/track/2rQvZscmpb6a7ejDiKprcL?si=e4f8aca364f541c7","Apple Music":"https://music.apple.com/us/album/yes-it-is/1441133181?i=1441133912"},{"Song":"\"Yesterday\"","Core catalogue release(s)":"Help!","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1965,"Spotify":"https://open.spotify.com/track/3BQHpFgAp4l80e1XslIjNI?si=0784678d5bb94ae3","Apple Music":"https://music.apple.com/us/album/yesterday/1441164524?i=1441164805"},{"Song":"\"You Can't Do That\"","Core catalogue release(s)":"A Hard Day's Night","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1964,"Spotify":"https://open.spotify.com/track/5b9G4dtK3Tdguuy9BO3Nwo?si=ba90c291fb594269","Apple Music":"https://music.apple.com/us/album/you-cant-do-that/1441164416?i=1441164429"},{"Song":"\"You Know My Name (Look Up the Number)\"","Core catalogue release(s)":"Past Masters\n(B-side of \"Let It Be\")","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon\nMcCartney","Year":1970,"Spotify":"https://open.spotify.com/track/2k7gS1tS9OHeS3e8MatzgJ?si=8e120a89ddfb41c6","Apple Music":"https://music.apple.com/us/album/you-know-my-name-look-up-the-number/1441133181?i=1441134710"},{"Song":"\"You Like Me Too Much\"","Core catalogue release(s)":"Help!","Songwriter(s)":"Harrison","Lead vocal(s)":"Harrison","Year":1965,"Spotify":"https://open.spotify.com/track/0y1LLH0NiwOD5tM3aNMXTr?si=213805718ae24521","Apple Music":"https://music.apple.com/us/album/you-like-me-too-much/1441164524?i=1441164798"},{"Song":"\"You Never Give Me Your Money\"","Core catalogue release(s)":"Abbey Road","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1969,"Spotify":"https://open.spotify.com/track/1jOLTO379yIu9aMnCkpMQl?si=664c8de19d924542","Apple Music":"https://music.apple.com/us/album/you-never-give-me-your-money/1441164426?i=1441164593"},{"Song":"\"You Really Got a Hold on Me\"","Core catalogue release(s)":"With the Beatles","Songwriter(s)":"Smokey Robinson","Lead vocal(s)":"Lennon","Year":1963,"Spotify":"https://open.spotify.com/track/7rgUYidQh5tH0YlXCoKaYJ?si=d3d460841bb242af","Apple Music":"https://music.apple.com/us/album/you-really-got-a-hold-on-me/1441164362?i=1441164832"},{"Song":"\"You Won't See Me\"","Core catalogue release(s)":"Rubber Soul","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1965,"Spotify":"https://open.spotify.com/track/4LLBKnNCrSRrSjSTuiwjE9?si=5ff251856bc84cac","Apple Music":"https://music.apple.com/us/album/you-wont-see-me/1441164359?i=1441164612"},{"Song":"\"Your Mother Should Know\"","Core catalogue release(s)":"Magical Mystery Tour","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"McCartney","Year":1967,"Spotify":"https://open.spotify.com/track/1dxbAIfCASqv6jix2R1Taj?si=ae403a5ef4c54d5e","Apple Music":"https://music.apple.com/us/album/your-mother-should-know/1441163490?i=1441163745"},{"Song":"\"You're Going to Lose That Girl\"","Core catalogue release(s)":"Help!","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1965,"Spotify":"https://open.spotify.com/track/70HNt0eoBVqr4ss68U8x3B?si=a148fec693f34999","Apple Music":"https://music.apple.com/us/album/youre-going-to-lose-that-girl/1441164524?i=1441164668"},{"Song":"\"You've Got to Hide Your Love Away\"","Core catalogue release(s)":"Help!","Songwriter(s)":"Lennon\nMcCartney","Lead vocal(s)":"Lennon","Year":1965,"Spotify":"https://open.spotify.com/track/4F1AgKpuFRMLEgtPETVwZk?si=47e817d7dd274dda","Apple Music":"https://music.apple.com/us/album/youve-got-to-hide-your-love-away/1441164524?i=1441164546"}];
+</script>
+    <script>
+        // App State
+        let songs = [];
+        let currentSongIndex = 0;
+        let ratings = {};
+        let currentScreen = 'start-screen';
+
+        // Initialize the app
+        function init() {
+            songs = [...SONGS_DATA];
+
+            // Shuffle songs
+            shuffleArray(songs);
+
+            // Load saved ratings from localStorage
+            loadRatings();
+
+            // Show start screen
+            showScreen('start-screen');
+        }
+
+        // Screen Management
+        function showScreen(screenId) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show requested screen
+            document.getElementById(screenId).classList.add('active');
+            currentScreen = screenId;
+        }
+
+        function startRating() {
+            // Find first unrated song
+            findNextUnratedSong();
+            
+            // Update the rating screen
+            updateRatingScreen();
+            
+            // Show rating screen
+            showScreen('rating-screen');
+        }
+
+        function showHelp() {
+            showScreen('help-screen');
+        }
+
+        function closeHelp() {
+            if (currentScreen === 'help-screen') {
+                // Go back to previous screen
+                if (Object.keys(ratings).length > 0) {
+                    showScreen('rating-screen');
+                } else {
+                    showScreen('start-screen');
+                }
+            }
+        }
+
+        function showSongInfo() {
+            const song = songs[currentSongIndex];
+            
+            // Populate song info
+            document.getElementById('info-song-title').textContent = song.Song || song.title;
+            document.getElementById('info-album').textContent = song['Core catalogue release(s)'] || song.album;
+            document.getElementById('info-year').textContent = `(${song.Year || song.year})`;
+            
+            // Set album artwork
+            const albumName = song['Core catalogue release(s)'] || song.album;
+            const albumArtPath = getAlbumArtPath(albumName);
+            document.getElementById('info-album-art').src = albumArtPath;
+            
+            // Setup streaming links
+            const spotifyLink = document.getElementById('info-spotify-link');
+            const appleLink = document.getElementById('info-apple-link');
+            
+            const spotifyURL = song.Spotify || song.spotify;
+            const appleMusicURL = song['Apple Music'] || song.appleMusic;
+            
+            if (spotifyURL) {
+                spotifyLink.href = spotifyURL;
+                spotifyLink.style.display = 'inline-flex';
+            } else {
+                spotifyLink.style.display = 'none';
+            }
+            
+            if (appleMusicURL) {
+                appleLink.href = appleMusicURL;
+                appleLink.style.display = 'inline-flex';
+            } else {
+                appleLink.style.display = 'none';
+            }
+            
+            showScreen('info-screen');
+        }
+
+        function getAlbumArtPath(albumName) {
+            const albumMap = {
+                "Please Please Me": "albumart/album_pleasepleaseme.png",
+                "With the Beatles": "albumart/album_withthebeatles.png",
+                "A Hard Day's Night": "albumart/album_aharddaysnight.png",
+                "Beatles for Sale": "albumart/album_beatlesforsale.png",
+                "Help!": "albumart/album_help.png",
+                "Rubber Soul": "albumart/album_rubbersoul.png",
+                "Revolver": "albumart/album_revolver.png",
+                "Sgt. Pepper's Lonely Hearts Club Band": "albumart/album_sgtpeppers.png",
+                "The Beatles": "albumart/album_whitealbum.png",
+                "Yellow Submarine": "albumart/album_yellowsubmarine.png",
+                "Abbey Road": "albumart/album_abbeyroad.png",
+                "Let It Be": "albumart/album_letitbe.png",
+                "Magical Mystery Tour": "albumart/album_magicalmysterytour.png",
+                "Past Masters": "albumart/album_pastmasters.png"
+            };
+            
+            // Handle multi-album releases by taking the first one
+            const firstAlbum = albumName.split(',')[0].trim();
+            
+            return albumMap[firstAlbum] || "albumart/album_whitealbum.png";
+        }
+
+        function backToRating() {
+            showScreen('rating-screen');
+            updateRatingScreen();
+        }
+
+        function showResults() {
+            generateResults();
+            showScreen('results-screen');
+        }
+
+        function startOver() {
+            if (confirm('Are you sure you want to start over? All your ratings will be deleted.')) {
+                ratings = {};
+                saveRatings();
+                currentSongIndex = 0;
+                shuffleArray(songs);
+                showScreen('start-screen');
+            }
+        }
+
+        // Rating Logic
+        function rateSong(rating) {
+            const song = songs[currentSongIndex];
+            const songTitle = song.Song || song.title;
+            
+            // Save rating
+            ratings[songTitle] = {
+                rating: rating,
+                timestamp: Date.now()
+            };
+            
+            // Save to localStorage
+            saveRatings();
+            
+            // Move to next unrated song
+            findNextUnratedSong();
+            
+            // Update screen
+            updateRatingScreen();
+            
+            // Check if all songs rated
+            if (Object.keys(ratings).length === songs.length) {
+                setTimeout(() => {
+                    showResults();
+                }, 500);
+            }
+        }
+
+        function findNextUnratedSong() {
+            // Start from current position and look for unrated song
+            for (let i = 0; i < songs.length; i++) {
+                const checkIndex = (currentSongIndex + i) % songs.length;
+                const songTitle = songs[checkIndex].Song || songs[checkIndex].title;
+                if (!ratings[songTitle]) {
+                    currentSongIndex = checkIndex;
+                    return;
+                }
+            }
+            
+            // If all rated, stay at current
+        }
+
+        function updateRatingScreen() {
+            const song = songs[currentSongIndex];
+            const songTitle = song.Song || song.title;
+
+            // Update song title
+            document.getElementById('song-title').textContent = songTitle;
+
+            // Update album art
+            const albumName = song['Core catalogue release(s)'] || song.album;
+            document.getElementById('rating-album-art').src = getAlbumArtPath(albumName);
+
+            // Update progress
+            const ratedCount = Object.keys(ratings).length;
+            const totalCount = songs.length;
+            const progressPercent = (ratedCount / totalCount) * 100;
+            
+            document.getElementById('progress-fill').style.width = progressPercent + '%';
+            document.getElementById('progress-text').textContent = `${ratedCount} of ${totalCount} songs rated`;
+            
+            // Update streaming links
+            const spotifyLink = document.getElementById('spotify-link');
+            const appleLink = document.getElementById('apple-link');
+            
+            const spotifyURL = song.Spotify || song.spotify;
+            const appleMusicURL = song['Apple Music'] || song.appleMusic;
+            
+            if (spotifyURL) {
+                spotifyLink.href = spotifyURL;
+                spotifyLink.style.display = 'inline-flex';
+            } else {
+                spotifyLink.style.display = 'none';
+            }
+            
+            if (appleMusicURL) {
+                appleLink.href = appleMusicURL;
+                appleLink.style.display = 'inline-flex';
+            } else {
+                appleLink.style.display = 'none';
+            }
+            
+            // Show/hide results button
+            const resultsBtn = document.getElementById('results-btn');
+            if (ratedCount >= 1) {
+                resultsBtn.style.display = 'block';
+            } else {
+                resultsBtn.style.display = 'none';
+            }
+        }
+
+        function generateResults() {
+            const ratedCount = Object.keys(ratings).length;
+            const totalCount = songs.length;
+
+            let resultsHTML = '';
+
+            if (ratedCount < 20) {
+                resultsHTML = `
+                    <div class="results-summary">
+                        <p>You need to rate at least 20 songs to generate results.</p>
+                        <p style="color: #888; margin-top: 10px;">You've rated ${ratedCount} songs so far.</p>
+                    </div>
+                `;
+            } else {
+                // Group songs by rating tier
+                const tierNames = {
+                    1: 'Tier 1 — Your Absolute Favorites',
+                    2: 'Tier 2 — Love These',
+                    3: 'Tier 3 — Really Like These',
+                    4: 'Tier 4 — Like These',
+                    5: 'Tier 5 — The Rest'
+                };
+
+                const tierSongs = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+
+                // Map song titles back to their full song objects for display
+                const songsByTitle = {};
+                songs.forEach(s => {
+                    songsByTitle[s.Song || s.title] = s;
+                });
+
+                Object.entries(ratings).forEach(([title, data]) => {
+                    tierSongs[data.rating].push(title);
+                });
+
+                const tierBlocks = [1, 2, 3, 4, 5].map(tier => {
+                    const list = tierSongs[tier];
+                    if (list.length === 0) return '';
+                    const songItems = list.map(title => `
+                        <div class="rating-stat">
+                            <span>${title}</span>
+                        </div>
+                    `).join('');
+                    return `
+                        <div class="results-box">
+                            <h3>${tierNames[tier]} <span style="color:#888; font-size:16px;">(${list.length})</span></h3>
+                            ${songItems}
+                        </div>
+                    `;
+                }).join('');
+
+                resultsHTML = `
+                    <div class="results-summary">
+                        <p>You've rated ${ratedCount} of ${totalCount} Beatles songs!</p>
+                    </div>
+                    ${tierBlocks}
+                `;
+            }
+
+            document.getElementById('results-content').innerHTML = resultsHTML;
+        }
+
+        // LocalStorage Functions
+        function saveRatings() {
+            localStorage.setItem('beatles-ratings', JSON.stringify(ratings));
+        }
+
+        function loadRatings() {
+            const saved = localStorage.getItem('beatles-ratings');
+            if (saved) {
+                try {
+                    ratings = JSON.parse(saved);
+                } catch (e) {
+                    ratings = {};
+                }
+            }
+        }
+
+        // Utility Functions
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Initialize app when page loads
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

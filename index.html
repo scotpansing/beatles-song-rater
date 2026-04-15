@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beatles Song Rater</title>
+    <title>Work it Out</title>
     <style>
         * {
             margin: 0;
@@ -387,6 +387,182 @@
             margin: 8px 0;
         }
 
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(20, 20, 20, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            text-align: center;
+            max-width: 85%;
+            pointer-events: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .toast.visible { opacity: 1; }
+
+        /* Results Stats */
+        .stat-card {
+            background-color: rgba(255, 255, 255, 0.07);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin: 10px 0;
+        }
+        .stat-card-title {
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #555;
+            margin-bottom: 12px;
+        }
+        .stat-insight {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 14px;
+            line-height: 1.4;
+            color: #fff;
+        }
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 7px 0;
+        }
+        .bar-label {
+            width: 58px;
+            flex-shrink: 0;
+            color: #aaa;
+            font-size: 13px;
+        }
+        .bar-track {
+            flex: 1;
+            height: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            background-color: #fff;
+            border-radius: 3px;
+        }
+        .bar-count {
+            width: 26px;
+            text-align: right;
+            color: #555;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .album-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 9px 0;
+        }
+        .album-thumb {
+            width: 36px;
+            height: 36px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        .album-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .album-name-stat {
+            font-size: 13px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .album-meta {
+            font-size: 11px;
+            color: #555;
+            margin-top: 2px;
+        }
+        .album-bar-track {
+            width: 48px;
+            flex-shrink: 0;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .album-bar-fill {
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.65);
+            border-radius: 2px;
+        }
+        .playlist-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            gap: 10px;
+        }
+        .playlist-item:last-child { border-bottom: none; }
+        .playlist-title {
+            flex: 1;
+            min-width: 0;
+            font-size: 14px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .playlist-links {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .playlist-link {
+            font-size: 11px;
+            color: #777;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 3px 7px;
+            border-radius: 4px;
+            transition: all 0.1s;
+        }
+        .playlist-link:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
+        .copy-btn {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #777;
+            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 14px;
+            width: 100%;
+            transition: all 0.1s;
+        }
+        .copy-btn:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
+        .results-section-label {
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #444;
+            margin: 26px 0 6px 0;
+        }
+        .unlock-progress { margin-top: 20px; }
+        .unlock-progress .progress-bar { height: 4px; }
+        .unlock-progress .progress-text { margin-top: 8px; font-size: 13px; }
+
         /* Loading state */
         .loading-message {
             font-size: 18px;
@@ -424,6 +600,8 @@
     </style>
 </head>
 <body>
+    <div id="toast" class="toast"></div>
+
     <!-- Start Screen -->
     <div id="start-screen" class="screen active">
         <div class="content-center">
@@ -447,6 +625,7 @@
 
             <div style="text-align: center; margin: 10px 0 20px 0;">
                 <img id="rating-album-art" src="" alt="Album artwork" class="album-art">
+                <p id="rating-album-name" style="color:#888; font-size:13px; margin-top:8px; text-align:center;"></p>
             </div>
 
             <div class="rating-section">
@@ -468,7 +647,7 @@
             </div>
             
             <div id="streaming-links" class="streaming-section">
-                <p class="streaming-prompt">Listen to this song:</p>
+                <p class="streaming-prompt">Not sure about this one? Listen first:</p>
                 <div class="streaming-buttons">
                     <a id="spotify-link" href="#" target="_blank" class="streaming-btn" style="display: none;">
                         <span>🎵</span> Spotify
@@ -480,7 +659,7 @@
             </div>
             
             <button class="btn-text" onclick="showSongInfo()">
-                Feeling like a Fool on the Hill? Tap for more song info
+                Not sure? Tap for album details
             </button>
             
             <button id="results-btn" class="btn-secondary" onclick="showResults()" style="display: none;">
@@ -580,6 +759,7 @@ const SONGS_DATA = [{"Song":"\"Across the Universe\"","Core catalogue release(s)
         let currentSongIndex = 0;
         let ratings = {};
         let currentScreen = 'start-screen';
+        const TIER_CAP = 42;
 
         // Initialize the app
         function init() {
@@ -638,7 +818,7 @@ const SONGS_DATA = [{"Song":"\"Across the Universe\"","Core catalogue release(s)
             
             // Populate song info
             document.getElementById('info-song-title').textContent = song.Song || song.title;
-            document.getElementById('info-album').textContent = song['Core catalogue release(s)'] || song.album;
+            document.getElementById('info-album').textContent = getPrimaryAlbum(song['Core catalogue release(s)'] || song.album || '');
             document.getElementById('info-year').textContent = `(${song.Year || song.year})`;
             
             // Set album artwork
@@ -720,28 +900,76 @@ const SONGS_DATA = [{"Song":"\"Across the Universe\"","Core catalogue release(s)
         function rateSong(rating) {
             const song = songs[currentSongIndex];
             const songTitle = song.Song || song.title;
-            
+
             // Save rating
-            ratings[songTitle] = {
-                rating: rating,
-                timestamp: Date.now()
-            };
-            
+            ratings[songTitle] = { rating: rating, timestamp: Date.now() };
+
+            // Apply overflow / bump rules
+            const bumps = applyBumpRules();
+            if (bumps.length > 0) {
+                const b = bumps[0];
+                const extra = bumps.length > 1 ? ` (+${bumps.length - 1} more)` : '';
+                showToast(`Bumped: ${b.title} · Tier ${b.fromTier} → Tier ${b.toTier}${extra}`);
+            }
+
             // Save to localStorage
             saveRatings();
-            
+
             // Move to next unrated song
             findNextUnratedSong();
-            
+
             // Update screen
             updateRatingScreen();
-            
+
             // Check if all songs rated
             if (Object.keys(ratings).length === songs.length) {
-                setTimeout(() => {
-                    showResults();
-                }, 500);
+                setTimeout(() => showResults(), 500);
             }
+        }
+
+        function applyBumpRules() {
+            const bumps = [];
+            for (let tier = 1; tier <= 5; tier++) {
+                const entries = Object.entries(ratings)
+                    .filter(([_, d]) => d.rating === tier)
+                    .sort((a, b) => a[1].timestamp - b[1].timestamp);
+                while (entries.length > TIER_CAP) {
+                    const [title] = entries.shift();
+                    const newTier = tier < 5 ? tier + 1 : 4;
+                    ratings[title].rating = newTier;
+                    bumps.push({ title, fromTier: tier, toTier: newTier });
+                }
+            }
+            return bumps;
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('visible');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => toast.classList.remove('visible'), 3500);
+        }
+
+        function getPrimaryAlbum(albumField) {
+            return (albumField || '').split('\n')[0].split(',')[0].trim();
+        }
+
+        function getLeadVocalist(song) {
+            const raw = (song['Lead vocal(s)'] || '').split('\n')[0].trim();
+            const map = { 'Lennon': 'John', 'McCartney': 'Paul', 'Harrison': 'George', 'Starr': 'Ringo' };
+            return map[raw] || null;
+        }
+
+        function copyTierOneSongs() {
+            const tier1 = Object.entries(ratings)
+                .filter(([_, d]) => d.rating === 1)
+                .map(([title]) => title)
+                .sort()
+                .join('\n');
+            navigator.clipboard.writeText(tier1)
+                .then(() => showToast('Tier 1 songs copied to clipboard!'))
+                .catch(() => showToast('Copy failed — try a different browser'));
         }
 
         function findNextUnratedSong() {
@@ -766,8 +994,9 @@ const SONGS_DATA = [{"Song":"\"Across the Universe\"","Core catalogue release(s)
             document.getElementById('song-title').textContent = songTitle;
 
             // Update album art
-            const albumName = song['Core catalogue release(s)'] || song.album;
+            const albumName = song['Core catalogue release(s)'] || song.album || '';
             document.getElementById('rating-album-art').src = getAlbumArtPath(albumName);
+            document.getElementById('rating-album-name').textContent = getPrimaryAlbum(albumName);
 
             // Update progress
             const ratedCount = Object.keys(ratings).length;
@@ -810,59 +1039,148 @@ const SONGS_DATA = [{"Song":"\"Across the Universe\"","Core catalogue release(s)
         function generateResults() {
             const ratedCount = Object.keys(ratings).length;
             const totalCount = songs.length;
-
+            const THRESHOLD = 40;
             let resultsHTML = '';
 
-            if (ratedCount < 20) {
+            if (ratedCount < THRESHOLD) {
+                const pct = Math.round((ratedCount / THRESHOLD) * 100);
                 resultsHTML = `
                     <div class="results-summary">
-                        <p>You need to rate at least 20 songs to generate results.</p>
-                        <p style="color: #888; margin-top: 10px;">You've rated ${ratedCount} songs so far.</p>
+                        <p>Rate at least ${THRESHOLD} songs to unlock your full results.</p>
+                        <p style="color:#888; margin-top:10px;">You've rated ${ratedCount} of ${totalCount} songs.</p>
+                        <div class="unlock-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width:${pct}%"></div>
+                            </div>
+                            <p class="progress-text">${THRESHOLD - ratedCount} more to go</p>
+                        </div>
                     </div>
                 `;
             } else {
-                // Group songs by rating tier
-                const tierNames = {
-                    1: 'Tier 1 — Your Absolute Favorites',
-                    2: 'Tier 2 — Love These',
-                    3: 'Tier 3 — Really Like These',
-                    4: 'Tier 4 — Like These',
-                    5: 'Tier 5 — The Rest'
-                };
+                // Build song lookup
+                const songData = {};
+                songs.forEach(s => { songData[s.Song || s.title] = s; });
 
+                // Group by tier, sorted alphabetically
                 const tierSongs = { 1: [], 2: [], 3: [], 4: [], 5: [] };
-
-                // Map song titles back to their full song objects for display
-                const songsByTitle = {};
-                songs.forEach(s => {
-                    songsByTitle[s.Song || s.title] = s;
-                });
-
                 Object.entries(ratings).forEach(([title, data]) => {
-                    tierSongs[data.rating].push(title);
+                    if (tierSongs[data.rating]) tierSongs[data.rating].push(title);
                 });
+                Object.values(tierSongs).forEach(list => list.sort());
 
-                const tierBlocks = [1, 2, 3, 4, 5].map(tier => {
+                // Beatles Profile
+                const beatleCount = { John: 0, Paul: 0, George: 0, Ringo: 0 };
+                tierSongs[1].forEach(title => {
+                    const v = getLeadVocalist(songData[title]);
+                    if (v && v in beatleCount) beatleCount[v]++;
+                });
+                const totalTier1 = tierSongs[1].length;
+                const sortedBeatles = ['John', 'Paul', 'George', 'Ringo']
+                    .sort((a, b) => beatleCount[b] - beatleCount[a]);
+                const topBeatle = sortedBeatles[0];
+                const topPct = totalTier1 > 0
+                    ? Math.round(beatleCount[topBeatle] / totalTier1 * 100) : 0;
+                const beatleInsight = totalTier1 === 0
+                    ? 'Rate some Tier 1 songs to see your Beatles profile.'
+                    : topPct >= 40
+                        ? `You’re a ${topBeatle} person — ${beatleCount[topBeatle]} of your Tier 1 songs are his.`
+                        : `You love them all — your Tier 1 is spread across all four Beatles.`;
+                const maxBeatle = Math.max(...Object.values(beatleCount), 1);
+                const beatleBarHTML = ['John', 'Paul', 'George', 'Ringo'].map(name => `
+                    <div class="bar-row">
+                        <span class="bar-label">${name}</span>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="width:${Math.round(beatleCount[name] / maxBeatle * 100)}%"></div>
+                        </div>
+                        <span class="bar-count">${beatleCount[name]}</span>
+                    </div>`).join('');
+
+                // Album Rankings
+                const albumTotals = {}, albumCounts = {};
+                Object.entries(ratings).forEach(([title, data]) => {
+                    const song = songData[title];
+                    if (!song) return;
+                    const album = getPrimaryAlbum(song['Core catalogue release(s)'] || '');
+                    if (!album) return;
+                    albumTotals[album] = (albumTotals[album] || 0) + data.rating;
+                    albumCounts[album] = (albumCounts[album] || 0) + 1;
+                });
+                const albumStats = Object.entries(albumCounts)
+                    .filter(([_, count]) => count >= 3)
+                    .map(([album, count]) => ({ album, count, avg: albumTotals[album] / count }))
+                    .sort((a, b) => a.avg - b.avg);
+                const albumRowsHTML = albumStats.map(({ album, count, avg }) => `
+                    <div class="album-row">
+                        <img src="${getAlbumArtPath(album)}" class="album-thumb" alt="${album}">
+                        <div class="album-info">
+                            <div class="album-name-stat">${album}</div>
+                            <div class="album-meta">${count} songs · avg ${avg.toFixed(1)}</div>
+                        </div>
+                        <div class="album-bar-track">
+                            <div class="album-bar-fill" style="width:${Math.round((5 - avg) / 4 * 100)}%"></div>
+                        </div>
+                    </div>`).join('');
+
+                // Tier 1 Playlist
+                const playlistHTML = tierSongs[1].length === 0
+                    ? '<p style="color:#666;font-size:14px;">No Tier 1 songs yet.</p>'
+                    : tierSongs[1].map(title => {
+                        const song = songData[title];
+                        const sp = song && (song.Spotify || song.spotify);
+                        const am = song && (song['Apple Music'] || song.appleMusic);
+                        const links = [
+                            sp ? `<a href="${sp}" target="_blank" class="playlist-link">Spotify</a>` : '',
+                            am ? `<a href="${am}" target="_blank" class="playlist-link">Apple</a>` : ''
+                        ].filter(Boolean).join('');
+                        return `<div class="playlist-item">
+                            <span class="playlist-title">${title}</span>
+                            <div class="playlist-links">${links}</div>
+                        </div>`;
+                    }).join('');
+
+                // Full Tier List
+                const tierLabels = {
+                    1: 'Absolute Favorites', 2: 'Love These',
+                    3: 'Really Like These', 4: 'Like These', 5: 'The Rest'
+                };
+                const tierBlocksHTML = [1, 2, 3, 4, 5].map(tier => {
                     const list = tierSongs[tier];
-                    if (list.length === 0) return '';
-                    const songItems = list.map(title => `
-                        <div class="rating-stat">
-                            <span>${title}</span>
-                        </div>
-                    `).join('');
-                    return `
-                        <div class="results-box">
-                            <h3>${tierNames[tier]} <span style="color:#888; font-size:16px;">(${list.length})</span></h3>
-                            ${songItems}
-                        </div>
-                    `;
+                    if (!list.length) return '';
+                    return `<div class="results-box">
+                        <h3>Tier ${tier} — ${tierLabels[tier]} <span style="color:#555;font-size:14px;">(${list.length})</span></h3>
+                        ${list.map(t => `<div class="rating-stat"><span>${t}</span></div>`).join('')}
+                    </div>`;
                 }).join('');
 
                 resultsHTML = `
                     <div class="results-summary">
-                        <p>You've rated ${ratedCount} of ${totalCount} Beatles songs!</p>
+                        <p>You’ve rated ${ratedCount} of ${totalCount} Beatles songs.</p>
                     </div>
-                    ${tierBlocks}
+
+                    <p class="results-section-label">Your Beatles Profile</p>
+                    <div class="stat-card">
+                        <div class="stat-card-title">Tier 1 songs by lead vocalist</div>
+                        <p class="stat-insight">${beatleInsight}</p>
+                        ${beatleBarHTML}
+                    </div>
+
+                    ${albumStats.length > 0 ? `
+                    <p class="results-section-label">Your Album Rankings</p>
+                    <div class="stat-card">
+                        <div class="stat-card-title">Average rating per album — lower is better</div>
+                        ${albumRowsHTML}
+                    </div>` : ''}
+
+                    ${tierSongs[1].length > 0 ? `
+                    <p class="results-section-label">Your Tier 1 Playlist</p>
+                    <div class="stat-card">
+                        <div class="stat-card-title">${tierSongs[1].length} songs</div>
+                        ${playlistHTML}
+                        <button class="copy-btn" onclick="copyTierOneSongs()">Copy song names to clipboard</button>
+                    </div>` : ''}
+
+                    <p class="results-section-label">All Your Ratings</p>
+                    ${tierBlocksHTML}
                 `;
             }
 

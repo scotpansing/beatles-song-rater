@@ -681,16 +681,18 @@ const SONGS_DATA = [{"Song":"\"Across the Universe\"","Core catalogue release(s)
                 "Revolver": "albumart/album_revolver.png",
                 "Sgt. Pepper's Lonely Hearts Club Band": "albumart/album_sgtpeppers.png",
                 "The Beatles": "albumart/album_whitealbum.png",
+                "The Beatles (\"White Album\")": "albumart/album_whitealbum.png",
                 "Yellow Submarine": "albumart/album_yellowsubmarine.png",
                 "Abbey Road": "albumart/album_abbeyroad.png",
                 "Let It Be": "albumart/album_letitbe.png",
                 "Magical Mystery Tour": "albumart/album_magicalmysterytour.png",
                 "Past Masters": "albumart/album_pastmasters.png"
             };
-            
-            // Handle multi-album releases by taking the first one
-            const firstAlbum = albumName.split(',')[0].trim();
-            
+
+            // Album field uses \n to separate multiple entries — take the first line,
+            // then take the first comma-separated value within that line
+            const firstAlbum = albumName.split('\n')[0].split(',')[0].trim();
+
             return albumMap[firstAlbum] || "albumart/album_whitealbum.png";
         }
 
